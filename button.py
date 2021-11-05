@@ -9,7 +9,7 @@ from draw_helpers import *
 
 class Button():
 
-    def __init__(self, location, dimensions, action, fill='blue', outline='black'):
+    def __init__(self, location, dimensions, action=(lambda: None), fill='blue', outline='black'):
         # tuples(x, y) of center of button or None 
         self.location = location
 
@@ -37,8 +37,8 @@ class Button():
         if self.location == None: return # does not draw if location is None
         x, y = self.location
         create_roundedRectangles(canvas, 
-                                x - self.width/2, y - self.height/2,
-                                x + self.width/2, y + self.height/2,
+                                x - self.width//2, y - self.height//2,
+                                x + self.width//2, y + self.height//2,
                                 r=10, fill=self.fill, outline=self.outline)
 
 
