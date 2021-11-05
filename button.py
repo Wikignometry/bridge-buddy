@@ -9,12 +9,12 @@ from draw_helpers import *
 
 class Button():
 
-    def __init__(self, location, dimensions, action=(lambda: None), fill='blue', outline='black'):
+    def __init__(self, dimension, location=None, action=(lambda: None), fill='blue', outline=None):
         # tuples(x, y) of center of button or None 
         self.location = location
 
         # tuples(width, height)
-        self.width, self.height = dimensions
+        self.width, self.height = dimension
 
         # functions that perform a given action when the button is pressed
         self.action = action
@@ -49,7 +49,7 @@ class Button():
 
 def testButtonClass():
     print('Testing Button...', end='')
-    button1 = Button((10,20), (5,10), lambda: 'foo')
+    button1 = Button((5,10), (10,20), lambda: 'foo')
     assert(button1.action() == 'foo')
     assert(button1.location[0] == 10)
     assert(button1.location[1] == 20)
@@ -59,7 +59,7 @@ def testButtonClass():
     print('Passed!')
 
 # def appStarted(app):
-#     app.button = Button((100,100), (50,50), lambda: print('foo'), fill='royalBlue')
+#     app.button = Button((50,50), (100,100), lambda: print('foo'), fill='royalBlue')
 
 # def mousePressed(app, event):
 #     if app.button.isPressed(event.x, event.y):
