@@ -1,7 +1,8 @@
 ###################################################################
 #       Imported Files
 from card import *
-# 112_graphs, draw_helpers and button imported via card
+from bid import *
+# 112_graphs, draw_helpers and button imported via card/bid
 ###################################################################
 
 
@@ -16,7 +17,15 @@ class Board():
         self.vul = self.getVulnerability() # '', 'ns', 'ew', 'nsew'
 
         self.bids = [] # list of tuples(position, Bid)
+        self.bidOptions = self.getAllBids()
 
+    #returns a list of all possible bids (excluding special ones)
+    def getAllBids():
+        bidOptions = []
+        for contract in range(1,7):
+            for trump in ['C', 'D', 'H', 'S', 'NT']:
+                bidOptions.append(Bid(contract, trump))
+        return bidOptions
 
     # returns str of vulnerable pair(s)
     def getVulnerability(self):

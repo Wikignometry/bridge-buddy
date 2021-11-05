@@ -70,6 +70,6 @@ def redrawAll(app, canvas):
 #       Code to run
 
 testBidClass()
-runApp(width=200, height=200)
+# runApp(width=200, height=200)
 
 
