@@ -23,7 +23,7 @@ class Button():
         return (abs(self.location[0] - x) < self.width/2 and
                 abs(self.location[1] - y) < self.height/2)
 
-#TODO: setLocation function
+#TODO: setLocation function??
 
 ###################################################################
 #       Test Functions
