@@ -31,6 +31,7 @@ class Card(Button):
         else: 
             self.color = 'black'
 
+    # returns the drawn version of suit symbols
     def getSymbol(self):
         suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤'}
         return suitSymbolDict[self.suit]
@@ -57,7 +58,7 @@ class Card(Button):
             number = 'JQKA'[number % 11]
         x, y = self.location
         canvas.create_text(x - self.width//2 + self.width//10, 
-                        y - self.height//2 + self.height//10, 
+                    y - self.height//2 + self.height//10, 
                     text=f'{number}\n{self.getSymbol()}', 
                     anchor='nw', justify='center', fill=self.color)
 
@@ -84,19 +85,19 @@ def testCardClass():
     assert((Card(8,'H') < Card(8,'S')) == True)
     print('Passed!')
 
-def appStarted(app):
-    app.card1 = Card(4,'C')
-    app.card2 = Card(14,'H')
-    app.card1.location = (200, 200)
-    app.card2.location = (200, 300)
+# def appStarted(app):
+#     app.card1 = Card(4,'C')
+#     app.card2 = Card(14,'H')
+#     app.card1.location = (200, 200)
+#     app.card2.location = (200, 300)
 
-def redrawAll(app, canvas):
-    app.card1.draw(canvas)
-    app.card2.draw(canvas)
+# def redrawAll(app, canvas):
+#     app.card1.draw(canvas)
+#     app.card2.draw(canvas)
 
 ###################################################################
 #       Code to run
 
 testCardClass()
-runApp(width=500, height=500)
+# runApp(width=500, height=500)
 
