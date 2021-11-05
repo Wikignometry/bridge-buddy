@@ -23,6 +23,7 @@ class Button():
         return (abs(self.location[0] - x) < self.width/2 and
                 abs(self.location[1] - y) < self.height/2)
 
+#TODO: setLocation function
 
 ###################################################################
 #       Test Functions
@@ -35,6 +36,7 @@ def testButtonClass():
     assert(button1.location[1] == 20)
     assert(button1.isPressed(12, 21) == True)
     assert(button1.isPressed(9, 18) == True)
+    assert(button1.isPressed(5, 27) == False)
     print('Passed!')
 
 ###################################################################
