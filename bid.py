@@ -18,6 +18,12 @@ class Bid(Button):
 
         super().__init__(dimension=(50, 50), location=(100, 100), fill=self.color) #outline=None
 
+    # helps with code testing
+    def __eq__(self, other):
+        return (isinstance(other, Bid) and 
+        (self.contract == other.contract) and
+        (self.trump == other.trump))
+
     #i.e. 6NT, 7H, 1C, 4S, 5D
     def __repr__(self):
         return str(self.contract) + self.trump

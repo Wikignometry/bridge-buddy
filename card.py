@@ -23,6 +23,11 @@ class Card(Button):
         self.fill = 'white'
         self.outline = 'black'
 
+    # helps with code testing
+    def __eq__(self, other):
+        return (isinstance(other, Card) and
+                (self.number == other.number) and
+                (self.suit) == other.suit)
 
     # assigns color to card based on suit
     def setColor(self):
