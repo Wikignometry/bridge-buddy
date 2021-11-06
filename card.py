@@ -1,6 +1,7 @@
 ###################################################################
 #       Imported Files
 from button import *
+import math
 # 112_graphs and draw_helpers imported via button
 ###################################################################
 
@@ -29,18 +30,6 @@ class Card(Button):
                 (self.number == other.number) and
                 (self.suit) == other.suit)
 
-    # assigns color to card based on suit
-    def setColor(self):
-        if self.suit in 'DH': 
-            self.color = 'red'
-        else: 
-            self.color = 'black'
-
-    # returns the drawn version of suit symbols
-    def getSymbol(self):
-        suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤'}
-        return suitSymbolDict[self.suit]
-
     # i.e. 3C, AS, 10H, JD, 8H
     def __repr__(self):
         if self.number < 11:
@@ -54,6 +43,28 @@ class Card(Button):
         if suitOrder.find(self.suit) > suitOrder.find(other.suit):
             return True
         return self.number < other.number
+
+    # assigns color to card based on suit
+    def setColor(self):
+        if self.suit in 'DH': 
+            self.color = 'red'
+        else: 
+            self.color = 'black'
+
+    # returns the drawn version of suit symbols
+    def getSymbol(self):
+        suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤'}
+        return suitSymbolDict[self.suit]
+
+    # changed the location of the card towards a given value
+    def move(self, x1, y1, speed):
+        if self.location == None: return # check for None location value (unlikely)
+        x0, y0 = self.location
+        if not (math.isclose(x0, x1, abs_tol=1) and
+            math.isclose(y0, y1, abs_tol=1)):
+            dx = int((x1-x0)*speed) + 1 # speed is a value between 1 and 0
+            dy = int((y1-y0)*speed) + 1
+            self.location = (x0 + dx, y0 + dy)   
 
     # will override button draw method
     def draw(self, canvas):
@@ -90,15 +101,19 @@ def testCardClass():
     assert((Card(8,'H') < Card(8,'S')) == True)
     print('Passed!')
 
-# def appStarted(app):
-#     app.card1 = Card(4,'C')
-#     app.card2 = Card(14,'H')
-#     app.card1.location = (200, 200)
-#     app.card2.location = (200, 300)
+def appStarted(app):
+    app.card1 = Card(4,'C')
+    app.card2 = Card(14,'H')
+    app.card1.location = (200, 200)
+    app.card2.location = (200, 300)
 
-# def redrawAll(app, canvas):
-#     app.card1.draw(canvas)
-#     app.card2.draw(canvas)
+def timerFired(app):
+    app.card1.move(100,100, 0.1)
+    app.card2.move(100,100, 0.1)
+
+def redrawAll(app, canvas):
+    app.card1.draw(canvas)
+    app.card2.draw(canvas)
 
 ###################################################################
 #       Code to run

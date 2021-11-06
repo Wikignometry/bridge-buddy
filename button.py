@@ -1,7 +1,7 @@
 ###################################################################
 #       Imported Files
 from cmu_112_graphics import *
-from draw_helpers import *
+from helper import *
 ###################################################################
 
 # Button is the superclass for every pressable object in the program
