@@ -19,15 +19,19 @@ class Board():
 
         self.bids = [] # list of tuples(position, Bid)
         self.bidOptions = self.getAllBids()
+        self.bid = None
 
         self.dealHand() #self.hands = dict(key=position, value=list of Cards)
         #TODO: sort hand function
-        self.currentRound = [] #list of tuples(position, Card)
+        self.currentRound = ['n'] #list starting with leading position, then contains all the cards played in clockwise direction
+        self.lead = None # Card of first card in each round
 
         #TODO: remember to change
         self.activePosition = 'n' # 'n','e','s', 'w' or None
 
         self.cardDislayWidth = 30 # width of the card shown when in hand format
+
+        self.history = [] # tracks what cards have already been played
 
     # returns a list of all possible bids (excluding special ones)
     def getAllBids(self):
@@ -53,7 +57,6 @@ class Board():
                 dealtCard = random.choice(allCards)
                 allCards.remove(dealtCard)
                 hands[direction].append(dealtCard)
-        hands['played'] = []
         self.hands = hands
 
     # make a deck of 52 cards
@@ -67,7 +70,7 @@ class Board():
     # actions to perform when a card is pressed
     def playCard(self, card, position, targetLocation):
         self.hands[position].remove(card)
-        self.currentRound.append((position, card))
+        self.currentRound.append((card))
         card.targetLocation = targetLocation
         # I want this to crash if it gets a non-string arg
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
@@ -87,6 +90,25 @@ class Board():
         for position in 'nsew':
             self.locateHand(self.hands[position], positionDict[position])
 
+    # performs all the neccesary actions for a round end
+    def endRound(self):
+        self.lead = self.currentRound[1] #TODO: this might have to move somewhere more efficient
+        winner = self.getWinner(self.currentRound[1:])
+        self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
+        self.currentRound = [winner]
+        self.lead = None #TODO: consider if this is necessary
+
+    # returns the winner in a round recursively
+    def getWinner(self, cardList):
+        if len(cardList) == 1:
+            return cardList[0]
+        else:
+            bestOfTheRest = self.getWinner(cardList[1:])
+            if cardList[0].isGreaterThanInGame(bestOfTheRest, self.bid, self.lead):
+                return cardList[0]
+            else: 
+                return bestOfTheRest
+    
     # draw each card in the hand
     def drawHands(self, canvas):
         for position in 'nsew':
@@ -95,7 +117,7 @@ class Board():
 
     # draw played cards in the current round
     def drawPlayedCards(self, canvas):
-        for _ , card in self.currentRound:
+        for card in self.currentRound[1:]: #because L[0] is a str of position
             card.draw(canvas)
 
 ###################################################################
@@ -119,30 +141,34 @@ def testBoardClass():
     assert(not hasDuplicates(board1.makeDeck()))
     for position in 'nsew':
         assert(not hasDuplicates(board1.hands[position]))
+    board1.lead = Card(8,'H')
+    board1.bid = Bid(4,'S')
+    assert(board1.getWinner([Card(8,'H'), Card(2,'S'), Card(7,'D'), Card(3,'S')]) == Card(3,'S')) 
+    assert(board1.getWinner([Card(8,'H'), Card(9,'H'), Card(11,'H'), Card(13,'D')])== Card(11,'H'))    
     print('Passed!')
 
-def appStarted(app):
-    app.board1 = Board(15)
+# def appStarted(app):
+#     app.board1 = Board(15)
 
-def mousePressed(app, event):
-    for card in app.board1.hands[app.board1.activePosition]:
-        if card.isPressed(event.x, event.y):
-            app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
+# def mousePressed(app, event):
+#     for card in app.board1.hands[app.board1.activePosition]:
+#         if card.isPressed(event.x, event.y):
+#             app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
 
-def timerFired(app):
-    for _ , card in app.board1.currentRound:
-        card.move(0.3)
+# def timerFired(app):
+#     for _ , card in app.board1.currentRound:
+#         card.move(0.3)
 
-def redrawAll(app, canvas):
-    app.board1.locateHands({'n': (app.width//2, 50), 
-                            'e': (app.width-200, app.height//2), 
-                            's': (app.width//2, app.height-50), 
-                            'w': (200, app.height//2)})
-    app.board1.drawHands(canvas)
-    app.board1.drawPlayedCards(canvas)
+# def redrawAll(app, canvas):
+#     app.board1.locateHands({'n': (app.width//2, 50), 
+#                             'e': (app.width-200, app.height//2), 
+#                             's': (app.width//2, app.height-50), 
+#                             'w': (200, app.height//2)})
+#     app.board1.drawHands(canvas)
+#     app.board1.drawPlayedCards(canvas)
 
 ###################################################################
 #       Code to run
 
 testBoardClass()
-runApp(width=1000, height=500)
+# runApp(width=1000, height=500)

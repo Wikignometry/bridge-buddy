@@ -45,6 +45,19 @@ class Card(Button):
             return True
         return self.number < other.number
 
+    # returns True is self is greater than other
+    def isGreaterThanInGame(self, other, bid, lead):
+        leadSuit = lead.suit
+        trump = bid.trump
+        if self.suit == other.suit:
+            return (self.number > other.number)
+        else:
+            if self.suit == trump or other.suit == trump:
+                return self.suit == trump
+            elif self.suit == leadSuit or other.suit == leadSuit:
+                return self.suit == leadSuit
+            else: return True # this is arbitrary, neither card can win in this circumstance
+
     # assigns color to card based on suit
     def setColor(self):
         if self.suit in 'DH': 
@@ -97,8 +110,8 @@ def testCardClass():
     assert(card1.location == (15, 20))
     assert(card1.isPressed(16, 24) == True)
     assert(card1.isPressed(200, 500) == False)
-    assert((card1 < Card(4,'C')) == False)
-    assert((card1 < Card(7,'C')) == True)
+    assert((card1 > Card(4,'C')) == True)
+    assert((card1 > Card(7,'C')) == False)
     assert((card1 < Card(7,'H')) == True)
     assert((card1 < Card(4,'H')) == True)
     assert((Card(8,'S') < Card(8,'C')) == False)
