@@ -62,15 +62,15 @@ def testBidClass():
     assert(bid1.isPressed(170, 27) == False)
     print('Passed!')
 
-def appStarted(app):
-    app.bid = Bid(5,'S')
+# def appStarted(app):
+#     app.bid = Bid(5,'S')
 
-def mousePressed(app, event):
-    if app.bid.isPressed(event.x, event.y):
-        print('yes!')
+# def mousePressed(app, event):
+#     if app.bid.isPressed(event.x, event.y):
+#         print('yes!')
 
-def redrawAll(app, canvas):
-    app.bid.draw(canvas)
+# def redrawAll(app, canvas):
+#     app.bid.draw(canvas)
 
 ###################################################################
 #       Code to run

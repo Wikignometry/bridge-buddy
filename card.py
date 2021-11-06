@@ -15,6 +15,7 @@ class Card(Button):
         self.setColor() # self.color: 'red' or 'black'
 
         self.location = None # tuple(x, y) or None
+        self.targetLocation = None # where it wants to go
 
         # actual dimensions (in mm) according to http://greatbridgelinks.com/poker-size-cards-vs-bridge-size-cards/
         self.width = 57 # constant int
@@ -57,17 +58,20 @@ class Card(Button):
         return suitSymbolDict[self.suit]
 
     # changed the location of the card towards a given value
-    def move(self, x1, y1, speed):
-        if self.location == None: return # check for None location value (unlikely)
+    def move(self, speed):
+        if self.location == None or self.targetLocation == None: return 
         x0, y0 = self.location
-        if not (math.isclose(x0, x1, abs_tol=1) and
-            math.isclose(y0, y1, abs_tol=1)):
+        x1, y1 = self.targetLocation
+        if not (math.isclose(x0, x1, abs_tol=0.1) and
+            math.isclose(y0, y1, abs_tol=0.1)):
             dx = int((x1-x0)*speed) + 1 # speed is a value between 1 and 0
             dy = int((y1-y0)*speed) + 1
             self.location = (x0 + dx, y0 + dy)   
 
     # will override button draw method
     def draw(self, canvas):
+        if self.location == None: 
+            return
         super().draw(canvas)
         number = self.number
         if number > 10:
@@ -101,19 +105,19 @@ def testCardClass():
     assert((Card(8,'H') < Card(8,'S')) == True)
     print('Passed!')
 
-def appStarted(app):
-    app.card1 = Card(4,'C')
-    app.card2 = Card(14,'H')
-    app.card1.location = (200, 200)
-    app.card2.location = (200, 300)
+# def appStarted(app):
+#     app.card1 = Card(4,'C')
+#     app.card2 = Card(14,'H')
+#     app.card1.location = (200, 200)
+#     app.card2.location = (200, 300)
 
-def timerFired(app):
-    app.card1.move(100,100, 0.1)
-    app.card2.move(100,100, 0.1)
+# def timerFired(app):
+#     app.card1.move(100,100, 0.1)
+#     app.card2.move(100,100, 0.1)
 
-def redrawAll(app, canvas):
-    app.card1.draw(canvas)
-    app.card2.draw(canvas)
+# def redrawAll(app, canvas):
+#     app.card1.draw(canvas)
+#     app.card2.draw(canvas)
 
 ###################################################################
 #       Code to run
