@@ -26,7 +26,7 @@ class Board():
         self.currentRound = ['n'] #list starting with leading position, then contains all the cards played in clockwise direction
         self.lead = None # Card of first card in each round
 
-        #TODO: remember to change
+        #TODO: remember to remove hardcoding
         self.activePosition = 'n' # 'n','e','s', 'w' or None
 
         self.cardDislayWidth = 30 # width of the card shown when in hand format
@@ -96,8 +96,11 @@ class Board():
         winner = self.getWinner(self.currentRound[1:])
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
         self.currentRound = [winner]
+        self.activePosition = winner
         self.lead = None #TODO: consider if this is necessary
 
+#FIXME: change the return to a position and not card 
+# (maybe) create a helper function to get the position based on how many turns have passed?
     # returns the winner in a round recursively
     def getWinner(self, cardList):
         if len(cardList) == 1:
@@ -147,28 +150,31 @@ def testBoardClass():
     assert(board1.getWinner([Card(8,'H'), Card(9,'H'), Card(11,'H'), Card(13,'D')])== Card(11,'H'))    
     print('Passed!')
 
-# def appStarted(app):
-#     app.board1 = Board(15)
+def appStarted(app):
+    app.board1 = Board(15)
+    app.board1.bid = Bid(4,'S')
 
-# def mousePressed(app, event):
-#     for card in app.board1.hands[app.board1.activePosition]:
-#         if card.isPressed(event.x, event.y):
-#             app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
+def mousePressed(app, event):
+    for card in app.board1.hands[app.board1.activePosition]:
+        if card.isPressed(event.x, event.y):
+            app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
+            if len(app.board1.currentRound) > 4:
+                app.board1.endRound()
 
-# def timerFired(app):
-#     for _ , card in app.board1.currentRound:
-#         card.move(0.3)
+def timerFired(app):
+    for card in app.board1.currentRound[1:]:
+        card.move(0.3)
 
-# def redrawAll(app, canvas):
-#     app.board1.locateHands({'n': (app.width//2, 50), 
-#                             'e': (app.width-200, app.height//2), 
-#                             's': (app.width//2, app.height-50), 
-#                             'w': (200, app.height//2)})
-#     app.board1.drawHands(canvas)
-#     app.board1.drawPlayedCards(canvas)
+def redrawAll(app, canvas):
+    app.board1.locateHands({'n': (app.width//2, 50), 
+                            'e': (app.width-200, app.height//2), 
+                            's': (app.width//2, app.height-50), 
+                            'w': (200, app.height//2)})
+    app.board1.drawHands(canvas)
+    app.board1.drawPlayedCards(canvas)
 
 ###################################################################
 #       Code to run
 
 testBoardClass()
-# runApp(width=1000, height=500)
+runApp(width=1000, height=500)
