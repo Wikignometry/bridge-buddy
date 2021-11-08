@@ -97,7 +97,6 @@ class Board():
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
         self.currentRound = []
         self.activePosition = winner
-        print(winner)
 
     # returns the winner in a round recursively
     def getWinner(self, cardList):
@@ -109,7 +108,13 @@ class Board():
                 return cardList[0]
             else: 
                 return bestOfTheRest
-    
+
+    # draws all the available bids 
+    def drawPotentialBids(self):
+        for bid in self.bidOptions:
+            if bid != None:
+                bid.draw
+
     # draw each card in the hand
     def drawHands(self, canvas):
         for position in 'nsew':
@@ -153,11 +158,12 @@ def appStarted(app):
     app.board1.bid = Bid(4,'S')
 
 def mousePressed(app, event):
-    for card in app.board1.hands[app.board1.activePosition]:
+    for card in (app.board1.hands[app.board1.activePosition])[::-1]:
         if card.isPressed(event.x, event.y):
             app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
-            if len(app.board1.currentRound) > 4:
+            if len(app.board1.currentRound) >= 4:
                 app.board1.endRound()
+            return
 
 def timerFired(app):
     for _ , card in app.board1.currentRound:
