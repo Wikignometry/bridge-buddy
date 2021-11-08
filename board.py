@@ -23,7 +23,7 @@ class Board():
 
         self.dealHand() #self.hands = dict(key=position, value=list of Cards)
         #TODO: sort hand function
-        self.currentRound = ['n'] #list starting with leading position, then contains all the cards played in clockwise direction
+        self.currentRound = [] #list starting with leading position, then contains all the cards played in clockwise direction
         self.lead = None # Card of first card in each round
 
         #TODO: remember to remove hardcoding
@@ -70,7 +70,7 @@ class Board():
     # actions to perform when a card is pressed
     def playCard(self, card, position, targetLocation):
         self.hands[position].remove(card)
-        self.currentRound.append((card))
+        self.currentRound.append((position, card))
         card.targetLocation = targetLocation
         # I want this to crash if it gets a non-string arg
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
@@ -92,22 +92,20 @@ class Board():
 
     # performs all the neccesary actions for a round end
     def endRound(self):
-        self.lead = self.currentRound[1] #TODO: this might have to move somewhere more efficient
-        winner = self.getWinner(self.currentRound[1:])
+        self.lead = self.currentRound[0][1] #TODO: this might have to move somewhere more efficient
+        winner, winningCard = self.getWinner(self.currentRound)
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
-        self.currentRound = [winner]
+        self.currentRound = []
         self.activePosition = winner
-        self.lead = None #TODO: consider if this is necessary
+        print(winner)
 
-#FIXME: change the return to a position and not card 
-# (maybe) create a helper function to get the position based on how many turns have passed?
     # returns the winner in a round recursively
     def getWinner(self, cardList):
         if len(cardList) == 1:
             return cardList[0]
         else:
             bestOfTheRest = self.getWinner(cardList[1:])
-            if cardList[0].isGreaterThanInGame(bestOfTheRest, self.bid, self.lead):
+            if cardList[0][1].isGreaterThanInGame(bestOfTheRest[1], self.bid, self.lead):
                 return cardList[0]
             else: 
                 return bestOfTheRest
@@ -120,7 +118,7 @@ class Board():
 
     # draw played cards in the current round
     def drawPlayedCards(self, canvas):
-        for card in self.currentRound[1:]: #because L[0] is a str of position
+        for _ , card in self.currentRound: 
             card.draw(canvas)
 
 ###################################################################
@@ -146,8 +144,8 @@ def testBoardClass():
         assert(not hasDuplicates(board1.hands[position]))
     board1.lead = Card(8,'H')
     board1.bid = Bid(4,'S')
-    assert(board1.getWinner([Card(8,'H'), Card(2,'S'), Card(7,'D'), Card(3,'S')]) == Card(3,'S')) 
-    assert(board1.getWinner([Card(8,'H'), Card(9,'H'), Card(11,'H'), Card(13,'D')])== Card(11,'H'))    
+    assert(board1.getWinner([('n', Card(8,'H')), ('s', Card(2,'S')), ('e', Card(7,'D')), ('w', Card(3,'S'))]) == ('w', Card(3,'S'))) 
+    assert(board1.getWinner([('s', Card(8,'H')), ('e', Card(9,'H')), ('w', Card(11,'H')), ('n', Card(13,'D'))])== ('w', Card(11,'H')))    
     print('Passed!')
 
 def appStarted(app):
@@ -162,7 +160,7 @@ def mousePressed(app, event):
                 app.board1.endRound()
 
 def timerFired(app):
-    for card in app.board1.currentRound[1:]:
+    for _ , card in app.board1.currentRound:
         card.move(0.3)
 
 def redrawAll(app, canvas):
