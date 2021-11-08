@@ -3,6 +3,8 @@
 from cmu_112_graphics import *
 from helper import *
 ###################################################################
+# this button class was modified for use in Hack112, but it was originally
+# written for use in the term project
 
 # Button is the superclass for every pressable object in the program
 #           –> button must be rectangular
