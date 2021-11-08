@@ -41,9 +41,10 @@ class Card(Button):
     # orders by suit first, then number
     def __lt__(self, other):
         suitOrder = 'SHCD' # order from greatest to least
-        if suitOrder.find(self.suit) > suitOrder.find(other.suit):
-            return True
-        return self.number < other.number
+        if suitOrder.find(self.suit) == suitOrder.find(other.suit):
+            return (self.number < other.number)
+        else:
+            return suitOrder.find(self.suit) > suitOrder.find(other.suit)
 
     # returns True is self is greater than other
     def isGreaterThanInGame(self, other, bid, lead):
@@ -105,17 +106,20 @@ def testCardClass():
     assert(str(card1) == '5C')
     assert(card1.location == None)
     assert(card1.color == 'black')
-    assert(card1.width, card1.height == (57, 89))
+    assert((card1.width, card1.height) == (57, 89))
     card1.location = (15, 20)
     assert(card1.location == (15, 20))
     assert(card1.isPressed(16, 24) == True)
     assert(card1.isPressed(200, 500) == False)
-    assert((card1 > Card(4,'C')) == True)
-    assert((card1 > Card(7,'C')) == False)
-    assert((card1 < Card(7,'H')) == True)
-    assert((card1 < Card(4,'H')) == True)
-    assert((Card(8,'S') < Card(8,'C')) == False)
-    assert((Card(8,'H') < Card(8,'S')) == True)
+    assert((Card(5, 'C') > Card(4,'C')) == True)
+    assert((Card(5, 'C') > Card(7,'C')) == False)
+    assert((Card(5, 'C') < Card(7,'H')) == True)
+    assert((Card(7, 'C') < Card(4,'H')) == True)
+    assert((Card(8, 'S') < Card(8,'C')) == False)
+    assert((Card(8, 'H') < Card(8,'S')) == True)
+    assert(sorted([Card(7, 'H'), Card(5, 'H'), Card(6, 'H')]) == [Card(5, 'H'), Card(6, 'H'), Card(7, 'H')])
+    assert(sorted([Card(5, 'D'), Card(7, 'H'), Card(6, 'C')]) == [Card(5, 'D'), Card(6, 'C'),Card(7, 'H')])
+    assert(sorted([Card(5, 'S'), Card(6, 'H'), Card(4, 'H')]) == [Card(4, 'H'), Card(6, 'H'),Card(5, 'S')])
     print('Passed!')
 
 # def appStarted(app):
