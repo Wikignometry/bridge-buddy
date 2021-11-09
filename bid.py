@@ -16,7 +16,7 @@ class Bid(Button):
 
         self.color = self.getColor() # color names
 
-        super().__init__(dimension=(50, 50), location=(100, 100), fill=self.color) #outline=None
+        super().__init__(dimension=(30, 27), location=(100, 100), fill=self.color, outline='black') 
 
     # helps with code testing
     def __eq__(self, other):
@@ -35,7 +35,7 @@ class Bid(Button):
     
     # returns the drawn version of suit symbols
     def getSymbol(self):
-        suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤'}
+        suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤', 'NT': 'NT'}
         return suitSymbolDict[self.trump]
 
     def draw(self, canvas):
@@ -56,9 +56,9 @@ def testBidClass():
     bid1 = Bid(5,'S')
     assert(bid1.color == 'blue')
     assert(bid1.location == (100, 100))
-    assert((bid1.width, bid1.height) == (50, 50))
+    assert((bid1.width, bid1.height) == (30, 27))
     assert(bid1.isPressed(112, 110) == True)
-    assert(bid1.isPressed(95, 80) == True)
+    assert(bid1.isPressed(95, 88) == True)
     assert(bid1.isPressed(170, 27) == False)
     print('Passed!')
 

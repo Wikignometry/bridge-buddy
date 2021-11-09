@@ -4,7 +4,11 @@ from card import *
 from bid import *
 # 112_graphs, draw_helpers and button imported via card/bid
 import random
+from helper import *
 ###################################################################
+
+
+
 
 
 class Board():
@@ -18,8 +22,9 @@ class Board():
         self.vul = self.getVulnerability() # '', 'ns', 'ew', 'nsew'
 
         self.bids = [] # list of tuples(position, Bid)
-        self.bidOptions = self.getAllBids()
+        self.bidOptions = self.getAllBids() # 2D list of all eligible bids
         self.bid = None
+        
 #TODO: implement bidding system
 
         #TODO: remove harcoding
@@ -34,20 +39,58 @@ class Board():
 
         self.cardDislayWidth = 30 # width of the card shown when in hand format
 
-        self.history = [] # tracks what cards have already been played
-
-    # returns a list of all possible bids (excluding special ones)
-    def getAllBids(self):
-        bidOptions = []
-        for contract in range(1,7):
-            for trump in ['C', 'D', 'H', 'S', 'NT']:
-                bidOptions.append(Bid(contract, trump))
-        return bidOptions
+        self.ewTricks = 0 # int
+        self.nsTricks = 0 # int
+        # tracks what cards have already been played
+        self.history = [] # list of tuples of each round
 
     # returns str of vulnerable pair(s)
     def getVulnerability(self):
         vulnerabilities = ['', 'ns', 'ew', 'nsew']
         return vulnerabilities[(self.index//4 + self.index) % 4]
+
+    # returns a list of all possible bids (excluding special ones)
+    def getAllBids(self):
+        bidOptions = []
+        for contract in range(1,8):
+            bidOptionsRow = []
+            for trump in ['C', 'D', 'H', 'S', 'NT']:
+                bidOptionsRow.append(Bid(contract, trump))
+            bidOptions.append(bidOptionsRow)
+        return bidOptions
+
+    # draws all the available bids 
+    def drawPotentialBids(self, canvas):
+        for row in self.bidOptions:
+            for bid in row[::-1]:
+                if bid != None:
+                    bid.draw(canvas)
+
+    # assigns the location of the bids based on a center of the grid
+    def locateBids(self, location):
+        xCenter, yCenter = location # refers to center of bidding grid
+        # x, y is the top left of the bid grid
+        x = xCenter - (40 * 2) # 60 is the width of button + 10, 2 is the # of bids between center and end
+        y = yCenter - (40 * 2) - 15 # like above except 25 is the distance to the center of the bid
+        for row in self.bidOptions: 
+            for bid in row:
+                bid.location = (x, y)
+                x += 35
+            x = xCenter - (40 * 2)
+            y += 22
+
+    # completes actions that need to happend when a bid is clicked
+    def playBid(self, bid):
+        self.clearLowerBids(bid)
+        self.bids.append(bid)
+
+    # removes all the bids in bidOptions lower than the bid given
+    def clearLowerBids(self, bid):
+        while bid not in self.bidOptions[0]:
+            self.bidOptions.pop(0)
+        while bid != self.bidOptions[0][0]:
+            self.bidOptions[0].pop(0)
+        self.bidOptions[0].pop(0) # to remove the bid itself
 
     # deals 13 cards to each hand
     def dealHand(self):
@@ -106,7 +149,9 @@ class Board():
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
         self.currentRound = []
         self.activePosition = winner
-#TODO: add tricks tracking
+        if winner in 'ew':
+            self.ewTricks += 1
+        else: self.nsTricks += 1
 
     # returns the winner in a round recursively
     def getWinner(self, cardList):
@@ -118,12 +163,6 @@ class Board():
                 return cardList[0]
             else: 
                 return bestOfTheRest
-
-    # draws all the available bids 
-    def drawPotentialBids(self):
-        for bid in self.bidOptions:
-            if bid != None:
-                bid.draw
 
     # draw each card in the hand
     def drawHands(self, canvas):
@@ -150,10 +189,10 @@ def testBoardClass():
     assert(board1.vul == '')
     assert(board1.dealer == 'n')
     assert(len(board1.hands['n']) == 13)
-    assert(Bid(5,'C') in board1.bidOptions)
-    assert(Bid(6,'NT') in board1.bidOptions)
-    assert(Bid(1,'S') in board1.bidOptions)
-    assert(Bid(4,'D') in board1.bidOptions)
+    assert(Bid(5,'C') in board1.bidOptions[4])
+    assert(Bid(6,'NT') in board1.bidOptions[5])
+    assert(Bid(1,'S') in board1.bidOptions[0])
+    assert(Bid(4,'D') in board1.bidOptions[3])
     assert(not hasDuplicates(board1.makeDeck()))
     for position in 'nsew':
         assert(not hasDuplicates(board1.hands[position]))
@@ -166,6 +205,7 @@ def testBoardClass():
 def appStarted(app):
     app.board1 = Board(15)
     app.board1.bid = Bid(4,'S')
+    app.board1.locateBids((app.width//2, app.height//2))
 
 def mousePressed(app, event):
     for card in (app.board1.hands[app.board1.activePosition])[::-1]:
@@ -174,6 +214,11 @@ def mousePressed(app, event):
             if len(app.board1.currentRound) >= 4:
                 app.board1.endRound()
             return
+    for row in app.board1.bidOptions:
+        for bid in row:
+            if bid.isPressed(event.x, event.y):
+                app.board1.playBid(bid)
+
 
 def timerFired(app):
     for _ , card in app.board1.currentRound:
@@ -186,6 +231,7 @@ def redrawAll(app, canvas):
                             'w': (250, app.height//2)})
     app.board1.drawHands(canvas)
     app.board1.drawPlayedCards(canvas)
+    app.board1.drawPotentialBids(canvas)
 
 ###################################################################
 #       Code to run
