@@ -205,7 +205,7 @@ def testBoardClass():
 def appStarted(app):
     app.board1 = Board(15)
     app.board1.bid = Bid(4,'S')
-    app.board1.locateBids((app.width//2, app.height//2))
+    app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
 
 def mousePressed(app, event):
     for card in (app.board1.hands[app.board1.activePosition])[::-1]:
