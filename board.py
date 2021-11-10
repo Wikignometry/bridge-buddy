@@ -20,6 +20,7 @@ class Board():
         self.bids = [] # list of tuples(position, Bid)
         self.bidOptions = self.getAllBids() # 2D list of all eligible bids
         self.bid = None
+        self.specialBidButtons = self.makeSpecialBids() #TODO: make this function
         
 #TODO: implement bidding system
 
@@ -44,49 +45,6 @@ class Board():
     def getVulnerability(self):
         vulnerabilities = ['', 'ns', 'ew', 'nsew']
         return vulnerabilities[(self.index//4 + self.index) % 4]
-
-    # returns a list of all possible bids (excluding special ones)
-    def getAllBids(self):
-        bidOptions = []
-        for contract in range(1,8):
-            bidOptionsRow = []
-            for trump in ['C', 'D', 'H', 'S', 'NT']:
-                bidOptionsRow.append(Bid(contract, trump))
-            bidOptions.append(bidOptionsRow)
-        return bidOptions
-
-    # draws all the available bids 
-    def drawPotentialBids(self, canvas):
-        for row in self.bidOptions:
-            for bid in row[::-1]:
-                if bid != None:
-                    bid.draw(canvas)
-
-    # assigns the location of the bids based on a center of the grid
-    def locateBids(self, location):
-        xCenter, yCenter = location # refers to center of bidding grid
-        # x, y is the top left of the bid grid
-        x = xCenter - (40 * 2) # 60 is the width of button + 10, 2 is the # of bids between center and end
-        y = yCenter - (40 * 2) - 15 # like above except 25 is the distance to the center of the bid
-        for row in self.bidOptions: 
-            for bid in row:
-                bid.location = (x, y)
-                x += 35
-            x = xCenter - (40 * 2)
-            y += 22
-
-    # completes actions that need to happend when a bid is clicked
-    def playBid(self, bid):
-        self.clearLowerBids(bid)
-        self.bids.append((self.activePosition, bid))
-
-    # removes all the bids in bidOptions lower than the bid given
-    def clearLowerBids(self, bid):
-        while bid not in self.bidOptions[0]:
-            self.bidOptions.pop(0)
-        while bid != self.bidOptions[0][0]:
-            self.bidOptions[0].pop(0)
-        self.bidOptions[0].pop(0) # to remove the bid itself
 
     # deals cards to each hand (note to future Fa: this could really easily be repurposed for other card games)
     def dealHand(self):
@@ -113,15 +71,80 @@ class Board():
     def sortHands(self):
         for position in 'nsew':
           self.hands[position].sort()
-        print(self.hands)
+
+    # returns a list of all possible bids (excluding special ones)
+    def getAllBids(self):
+        bidOptions = []
+        for contract in range(1,8):
+            bidOptionsRow = []
+            for trump in ['C', 'D', 'H', 'S', 'NT']:
+                bidOptionsRow.append(Bid(contract, trump))
+            bidOptions.append(bidOptionsRow)
+        return bidOptions
+
+    # assigns the location of the bids based on a center of the grid
+    def locateBids(self, location):
+        xCenter, yCenter = location # refers to center of bidding grid
+        # x, y is the top left of the bid grid
+        x = xCenter - (40 * 2) # 60 is the width of button + 10, 2 is the # of bids between center and end
+        y = yCenter - (40 * 2) - 15 # like above except 25 is the distance to the center of the bid
+        for row in self.bidOptions: 
+            for bid in row:
+                bid.location = (x, y)
+                x += 35
+            x = xCenter - (40 * 2)
+            y += 22
+
+    # completes actions that need to happend when a bid is clicked
+    def playBid(self, bid):
+        self.clearLowerBids(bid)
+        self.bids.append((self.activePosition, bid))
+        self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
+        if self.isBiddingEnd():
+            self.endBidding()
+    
+    # completes the actions required to end bidding
+    def endBidding(self):
+        index = 1
+        while self.bids[-index][1] == 'Pass':
+            index += 1
+        self.bid = self.bids[-index][1]
+
+    # returns True if the bidding has ended
+    def isBiddingEnd(self):
+        if len(self.bids) < 4:
+            return False
+        else:
+            for _, bid in self.bids[-3:]:
+                if bid != 'Pass': 
+                    return False
+            return True
+
+    # removes all the bids in bidOptions lower than the bid given
+    def clearLowerBids(self, bid):
+        while bid not in self.bidOptions[0]: # clears the rows
+            self.bidOptions.pop(0)
+        while bid != self.bidOptions[0][0]: # clears the columns
+            self.bidOptions[0].pop(0)
+        self.bidOptions[0].pop(0) # to remove the bid itself
+
+    # draws all the available bids 
+    def drawPotentialBids(self, canvas):
+        for row in self.bidOptions:
+            for bid in row[::-1]:
+                if bid != None:
+                    bid.draw(canvas)
 
     # actions to perform when a card is pressed
     def playCard(self, card, targetLocation):
         self.hands[self.activePosition].remove(card)
         self.currentRound.append((self.activePosition, card))
         card.targetLocation = targetLocation
-        # I want this to crash if it gets a non-string arg
+        # moves active position in a clockwise direction
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
+        # checks for round end
+        if len(self.currentRound) >= 4:
+                self.endRound()
 
     # location is a tuple (x, y) of the center of the hand
     def locateHand(self, hand, location):
@@ -141,7 +164,7 @@ class Board():
     # performs all the neccesary actions for a round end
     def endRound(self):
         self.lead = self.currentRound[0][1] #TODO: this might have to move somewhere more efficient
-        winner, winningCard = self.getWinner(self.currentRound)
+        winner, _ = self.getWinner(self.currentRound) # returns winning position and winning card (because recursion)
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
         self.currentRound = []
         self.activePosition = winner
@@ -175,15 +198,18 @@ class Board():
 ###################################################################
 #       Test Functions
 
-# returns True if there are duplicates
+# returns True if there are duplicates (used to test duplicates in deck/hand)
 def hasDuplicates(L):
-    strList = list(map(str, L))
+    strList = list(map(str, L)) # reprs all the objects
     return (list(set(strList)) == strList)
+
 
 def testBoardClass():
     print('Testing Board...', end='')
     board1 = Board(17)
     assert(board1.vul == '')
+    board2 = Board(4)
+    assert(board2.vul == 'nsew')
     assert(board1.dealer == 'n')
     assert(len(board1.hands['n']) == 13)
     assert(Bid(5,'C') in board1.bidOptions[4])
@@ -195,8 +221,14 @@ def testBoardClass():
         assert(not hasDuplicates(board1.hands[position]))
     board1.lead = Card(8,'H')
     board1.bid = Bid(4,'S')
+    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', 'Pass'), ('s', 'Pass'), ('n', 'Pass')]
     assert(board1.getWinner([('n', Card(8,'H')), ('s', Card(2,'S')), ('e', Card(7,'D')), ('w', Card(3,'S'))]) == ('w', Card(3,'S'))) 
     assert(board1.getWinner([('s', Card(8,'H')), ('e', Card(9,'H')), ('w', Card(11,'H')), ('n', Card(13,'D'))])== ('w', Card(11,'H')))    
+    assert(board1.isBiddingEnd() == True)
+    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', 'Pass'), ('s', 'Pass')]
+    assert(board1.isBiddingEnd() == False)
+    board1.bids = [('w', 'Pass'), ('s', 'Pass'), ('n', 'Pass')]
+    assert(board1.isBiddingEnd() == False)
     print('Passed!')
 
 def appStarted(app):
@@ -205,12 +237,12 @@ def appStarted(app):
     app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
 
 def mousePressed(app, event):
+    # checks if card is pressed and does corresponding actions
     for card in (app.board1.hands[app.board1.activePosition])[::-1]:
         if card.isPressed(event.x, event.y):
             app.board1.playCard(card, (app.width//2, app.height//2))
-            if len(app.board1.currentRound) >= 4:
-                app.board1.endRound()
             return
+    # checks if bid is pressed and does corresponding actions
     for row in app.board1.bidOptions:
         for bid in row:
             if bid.isPressed(event.x, event.y):
