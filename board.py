@@ -7,10 +7,6 @@ import random
 from helper import *
 ###################################################################
 
-
-
-
-
 class Board():
 
     def __init__(self, boardNumber):
@@ -82,7 +78,7 @@ class Board():
     # completes actions that need to happend when a bid is clicked
     def playBid(self, bid):
         self.clearLowerBids(bid)
-        self.bids.append(bid)
+        self.bids.append((self.activePosition, bid))
 
     # removes all the bids in bidOptions lower than the bid given
     def clearLowerBids(self, bid):
@@ -92,7 +88,7 @@ class Board():
             self.bidOptions[0].pop(0)
         self.bidOptions[0].pop(0) # to remove the bid itself
 
-    # deals 13 cards to each hand
+    # deals cards to each hand (note to future Fa: this could really easily be repurposed for other card games)
     def dealHand(self):
         hands = dict()
         cardsPerPlayer = 13
@@ -100,8 +96,8 @@ class Board():
         for direction in 'nesw':
             hands[direction] = []
             for _ in range(cardsPerPlayer):
-                dealtCard = random.choice(allCards)
-                allCards.remove(dealtCard)
+                dealtCard = random.choice(allCards) 
+                allCards.remove(dealtCard) # prevents the card from being dealt twice
                 hands[direction].append(dealtCard)
         self.hands = hands
 
@@ -120,9 +116,9 @@ class Board():
         print(self.hands)
 
     # actions to perform when a card is pressed
-    def playCard(self, card, position, targetLocation):
-        self.hands[position].remove(card)
-        self.currentRound.append((position, card))
+    def playCard(self, card, targetLocation):
+        self.hands[self.activePosition].remove(card)
+        self.currentRound.append((self.activePosition, card))
         card.targetLocation = targetLocation
         # I want this to crash if it gets a non-string arg
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
@@ -159,6 +155,7 @@ class Board():
             return cardList[0]
         else:
             bestOfTheRest = self.getWinner(cardList[1:])
+            # isGreaterThanInGame takes into account lead and trumps which are not taken into account by < or >
             if cardList[0][1].isGreaterThanInGame(bestOfTheRest[1], self.bid, self.lead):
                 return cardList[0]
             else: 
@@ -204,13 +201,13 @@ def testBoardClass():
 
 def appStarted(app):
     app.board1 = Board(15)
-    app.board1.bid = Bid(4,'S')
+    app.board1.bid = Bid(4,'S') # bid is currently hard coded. #TODO: remove hardcoding
     app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
 
 def mousePressed(app, event):
     for card in (app.board1.hands[app.board1.activePosition])[::-1]:
         if card.isPressed(event.x, event.y):
-            app.board1.playCard(card, app.board1.activePosition, (app.width//2, app.height//2))
+            app.board1.playCard(card, (app.width//2, app.height//2))
             if len(app.board1.currentRound) >= 4:
                 app.board1.endRound()
             return
@@ -237,4 +234,4 @@ def redrawAll(app, canvas):
 #       Code to run
 
 testBoardClass()
-runApp(width=1000, height=500)
+runApp(width=1200, height=700)
