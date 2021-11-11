@@ -5,6 +5,7 @@ from bid import *
 # 112_graphs, draw_helpers and button imported via card/bid
 import random
 from helper import *
+from special_button import *
 ###################################################################
 
 class Board():
@@ -20,7 +21,8 @@ class Board():
         self.bids = [] # list of tuples(position, Bid)
         self.bidOptions = self.getAllBids() # 2D list of all eligible bids
         self.bid = None
-        self.specialBidButtons = self.makeSpecialBids() #TODO: make this function
+
+        self.status = 'b' # 'b' (bidding) or 'p' (playing)
         
 #TODO: implement bidding system
 
@@ -80,27 +82,31 @@ class Board():
             for trump in ['C', 'D', 'H', 'S', 'NT']:
                 bidOptionsRow.append(Bid(contract, trump))
             bidOptions.append(bidOptionsRow)
+        bidOptions.append([SpecialBid('Pass')])
         return bidOptions
 
     # assigns the location of the bids based on a center of the grid
     def locateBids(self, location):
         xCenter, yCenter = location # refers to center of bidding grid
         # x, y is the top left of the bid grid
-        x = xCenter - (40 * 2) # 60 is the width of button + 10, 2 is the # of bids between center and end
-        y = yCenter - (40 * 2) - 15 # like above except 25 is the distance to the center of the bid
-        for row in self.bidOptions: 
+        x = xCenter - (40 * 2) # 40 is the width of button + 10, 2 is the # of bids between center and end
+        y = yCenter - (40 * 2) - 15 # like above except 15 is the distance to the center of the bid
+        for row in self.bidOptions[:-1]: 
             for bid in row:
                 bid.location = (x, y)
                 x += 35
             x = xCenter - (40 * 2)
             y += 22
+        self.bidOptions[-1][0].locate((xCenter, yCenter))
 
     # completes actions that need to happend when a bid is clicked
     def playBid(self, bid):
-        self.clearLowerBids(bid)
+        if isinstance(bid, Bid):
+            self.clearLowerBids(bid)
         self.bids.append((self.activePosition, bid))
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
         if self.isBiddingEnd():
+            print('foo')
             self.endBidding()
     
     # completes the actions required to end bidding
@@ -109,6 +115,8 @@ class Board():
         while self.bids[-index][1] == 'Pass':
             index += 1
         self.bid = self.bids[-index][1]
+        self.status = 'p'
+
 
     # returns True if the bidding has ended
     def isBiddingEnd(self):
@@ -116,7 +124,7 @@ class Board():
             return False
         else:
             for _, bid in self.bids[-3:]:
-                if bid != 'Pass': 
+                if bid != SpecialBid('Pass'): 
                     return False
             return True
 
@@ -221,13 +229,13 @@ def testBoardClass():
         assert(not hasDuplicates(board1.hands[position]))
     board1.lead = Card(8,'H')
     board1.bid = Bid(4,'S')
-    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', 'Pass'), ('s', 'Pass'), ('n', 'Pass')]
+    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', SpecialBid('Pass')), ('s', SpecialBid('Pass')), ('n', SpecialBid('Pass'))]
     assert(board1.getWinner([('n', Card(8,'H')), ('s', Card(2,'S')), ('e', Card(7,'D')), ('w', Card(3,'S'))]) == ('w', Card(3,'S'))) 
     assert(board1.getWinner([('s', Card(8,'H')), ('e', Card(9,'H')), ('w', Card(11,'H')), ('n', Card(13,'D'))])== ('w', Card(11,'H')))    
     assert(board1.isBiddingEnd() == True)
-    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', 'Pass'), ('s', 'Pass')]
+    board1.bids = [('n', Bid(1,'S')), ('e', Bid(2,'S')), ('w', SpecialBid('Pass')), ('s', SpecialBid('Pass'))]
     assert(board1.isBiddingEnd() == False)
-    board1.bids = [('w', 'Pass'), ('s', 'Pass'), ('n', 'Pass')]
+    board1.bids = [('w', SpecialBid('Pass')), ('s', SpecialBid('Pass')), ('n', SpecialBid('Pass'))]
     assert(board1.isBiddingEnd() == False)
     print('Passed!')
 
@@ -237,16 +245,19 @@ def appStarted(app):
     app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
 
 def mousePressed(app, event):
-    # checks if card is pressed and does corresponding actions
-    for card in (app.board1.hands[app.board1.activePosition])[::-1]:
-        if card.isPressed(event.x, event.y):
-            app.board1.playCard(card, (app.width//2, app.height//2))
-            return
+    if app.board1.status == 'p':
+        # checks if card is pressed and does corresponding actions
+        for card in (app.board1.hands[app.board1.activePosition])[::-1]:
+            if card.isPressed(event.x, event.y):
+                app.board1.playCard(card, (app.width//2, app.height//2))
+                return
     # checks if bid is pressed and does corresponding actions
-    for row in app.board1.bidOptions:
-        for bid in row:
-            if bid.isPressed(event.x, event.y):
-                app.board1.playBid(bid)
+    if app.board1.status == 'b':
+        for row in app.board1.bidOptions:
+            for bid in row:
+                if bid.isPressed(event.x, event.y):
+                    app.board1.playBid(bid)
+    print(app.board1.bids)
 
 
 def timerFired(app):
@@ -260,7 +271,8 @@ def redrawAll(app, canvas):
                             'w': (250, app.height//2)})
     app.board1.drawHands(canvas)
     app.board1.drawPlayedCards(canvas)
-    app.board1.drawPotentialBids(canvas)
+    if app.board1.status == 'b':
+        app.board1.drawPotentialBids(canvas)
 
 ###################################################################
 #       Code to run

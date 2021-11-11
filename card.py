@@ -17,13 +17,9 @@ class Card(Button):
         self.location = None # tuple(x, y) or None
         self.targetLocation = None # where it wants to go
 
-        # actual dimensions (in mm) according to http://greatbridgelinks.com/poker-size-cards-vs-bridge-size-cards/
-        self.width = 57 # constant int
-        self.height = 89 # constant int
-
-        # for drawing purposes (allows us to call button.draw)
-        self.fill = 'white'
-        self.outline = 'black'
+        super().__init__(dimension=(57,89), 
+                        fill='white',
+                        outline='black')
 
     # helps with code testing
     def __eq__(self, other):
@@ -71,6 +67,12 @@ class Card(Button):
         suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤'}
         return suitSymbolDict[self.suit]
 
+    # returns the number (or AKQJ symbol) 
+    def getNumber(self):
+        if self.number > 10:
+            return ('JQKA'[self.number % 11])
+        return self.number
+
     # changed the location of the card towards a given value
     def move(self, speed):
         if self.location == None or self.targetLocation == None: return 
@@ -87,13 +89,10 @@ class Card(Button):
         if self.location == None: 
             return
         super().draw(canvas)
-        number = self.number
-        if number > 10:
-            number = 'JQKA'[number % 11]
         x, y = self.location
         canvas.create_text(x - self.width//2 + self.width//10, 
                     y - self.height//2 + self.height//10, 
-                    text=f'{number}\n{self.getSymbol()}', 
+                    text=f'{self.getNumber()}\n{self.getSymbol()}', 
                     anchor='nw', justify='center', fill=self.color)
 
 

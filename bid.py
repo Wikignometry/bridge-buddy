@@ -16,7 +16,10 @@ class Bid(Button):
 
         self.color = self.getColor() # color names
 
-        super().__init__(dimension=(30, 27), location=(100, 100), fill=self.color, outline='black') 
+        super().__init__(dimension=(30, 27), location=(100, 100), 
+                        fill=self.color, outline='black',
+                        label=f'{self.contract}{self.getSymbol()}',
+                        textFill='white') 
 
     # helps with code testing
     def __eq__(self, other):
@@ -40,10 +43,10 @@ class Bid(Button):
 
     def draw(self, canvas):
         super().draw(canvas)
-        x, y = self.location
-        canvas.create_text(x, y, 
-                    text=f'{self.contract}{self.getSymbol()}', 
-                    anchor='center', justify='center', fill='white')
+        # x, y = self.location
+        # canvas.create_text(x, y, 
+        #             text=f'{self.contract}{self.getSymbol()}', 
+        #             anchor='center', justify='center', fill='white')
 
 
 
