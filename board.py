@@ -5,7 +5,7 @@ from bid import *
 # 112_graphs, draw_helpers and button imported via card/bid
 import random
 from helper import *
-from special_button import *
+from special_bid import *
 ###################################################################
 
 class Board():
