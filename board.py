@@ -43,6 +43,8 @@ class Board():
         # tracks what cards have already been played
         self.history = [] # list of tuples of each round
 
+        self.endBoard = False # turns to True when the board is over (Game checks this)
+
     # returns str of vulnerable pair(s)
     def getVulnerability(self):
         vulnerabilities = ['', 'ns', 'ew', 'nsew']
@@ -111,12 +113,14 @@ class Board():
     
     # completes the actions required to end bidding
     def endBidding(self):
-        index = 1
-        while self.bids[-index][1] == 'Pass':
-            index += 1
-        self.bid = self.bids[-index][1]
+        self.bid = SpecialBid('Pass') # sets in case it is a passout
+        for i in range(len(self.bids)):
+            if self.bids[-i][1] != SpecialBid('Pass'):
+                self.bid = self.bids[-i][1]
+        if self.bid == SpecialBid('Pass'):
+            print('yay')
+            self.endBoard = True #TODO: check for this in Game class
         self.status = 'p'
-
 
     # returns True if the bidding has ended
     def isBiddingEnd(self):

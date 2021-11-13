@@ -24,7 +24,8 @@ def create_roundedRectangles(canvas, x1, y1, x2, y2, r, fill, outline):
     ]
     canvas.create_polygon(points, smooth=True, fill=fill, outline=outline)
 
-# from http://www.cs.cmu.edu/~112/notes/notes-2d-lists.html#printing
+# both functions below from http://www.cs.cmu.edu/~112/notes/notes-2d-lists.html#printing
+# only used for debuggin purposes, will be removed for final submission
 def repr2dList(L):
     if (L == []): return '[]'
     output = [ ]
