@@ -33,6 +33,8 @@ class Card(Button):
             return str(self.number) + self.suit
         return 'JQKA'[self.number % 11] + self.suit
 
+    
+
     # will crash if fed non-Card other argument
     # orders by suit first, then number
     def __lt__(self, other):

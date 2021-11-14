@@ -184,7 +184,8 @@ class Board():
             self.ewTricks += 1
         else: self.nsTricks += 1
 
-    # returns the winner in a round recursively
+    # takes in list of tuple (position, card) 
+    # returns the winnerPosition, winningCard in a round recursively 
     def getWinner(self, cardList):
         if len(cardList) == 1:
             return cardList[0]
