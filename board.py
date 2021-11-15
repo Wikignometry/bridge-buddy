@@ -2,9 +2,8 @@
 #       Imported Files
 from card import *
 from bid import *
-# 112_graphs, draw_helpers and button imported via card/bid
+# 112_graphs, helper and button imported via card/bid
 import random
-from helper import *
 from special_bid import *
 ###################################################################
 

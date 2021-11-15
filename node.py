@@ -1,8 +1,10 @@
 # class of node for the minimax function
 ###################################################################
-#       Imported Modules
+#       Imported Modules/Files
 import copy
 from board import *
+# 112_graphs, random, card, bid,
+# special_bid, helper button imported via board
 ###################################################################
 #
 
@@ -47,8 +49,7 @@ class Node(Board):
     # returns the child's activePosition and currentRound if the round ends
     def endRound(self, card):
         winner, _ = self.getWinner(self.currentRound) # returns winning position and winning card (because recursion)
-        if winner in 'ew':
-            self.ewTricks += 1
+        if winner in 'ew': self.ewTricks += 1
         else: self.nsTricks += 1
         return winner, [(self.activePosition, card)]
         #   childActivePosition, childCurrentRound
