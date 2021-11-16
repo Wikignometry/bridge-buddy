@@ -98,6 +98,13 @@ class Card(Button):
                     anchor='nw', justify='center', fill=self.color)
 
 
+    # returns True if list contains the suit of the card
+    def containsSuit(self, cardList):
+        for card in cardList:
+            if card.suit == self.suit:
+                return True
+        return False
+
 ###################################################################
 #       Test Functions
 

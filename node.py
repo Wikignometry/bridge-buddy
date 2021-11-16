@@ -18,7 +18,7 @@ class Node(Board):
         # dict key=str(card) and 
         self.children = self.getChildren() 
 
-        self.currentRound = currentRound # is None if its the initial node, else is Card that was played to get to this position
+        self.currentRound = currentRound # list of tuples (position, card)
 
         self.ewTricks = ewTricks # int (0-13)
         self.nsTricks = nsTricks # int (0-13)
@@ -39,6 +39,7 @@ class Node(Board):
             
             # in normal circumstance where round has not ended
             if len(self.currentRound) < 4:
+                if not self.islegalPlay(card): continue
                 childActivePosition, childCurrentRound, childTricks = self.continueRound(card)
             # when four cards have been played in the round
             else: 
@@ -51,6 +52,12 @@ class Node(Board):
 
         return children
     
+    # returns True if play is legal
+    def islegalPlay(self, card):
+        lead = self.currentRound[0][1] # the first card in the round
+        return (lead.suit == card.suit or 
+            not lead.containsSuit(self.hands[self.activePosition]))
+
     # returns the child's activePosition and currentRound if the round continues
     def continueRound(self, card):
         childCurrentRound = self.currentRound + [(self.activePosition, card)]
@@ -93,4 +100,6 @@ class Node(Board):
 ###################################################################
 #       Test Functions
 
+def testNode():
+    print('Testing Node...', end='')
 
