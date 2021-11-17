@@ -11,12 +11,10 @@ from heuristic import *
 
 class Node(Board):
 
-    def __init__(self, hands, activePosition, currentRound, nsTricks, ewTricks, bid):
+    def __init__(self, hands, depth, activePosition, currentRound, nsTricks, ewTricks, bid):
+        self.depth = depth # int of how deep the node goes
         self.hands = hands # dict represented by key=position and value=list of Cards
         self.activePosition = activePosition # n, s, e or w
-
-        # dict key=str(card) and 
-        self.children = self.getChildren() 
 
         self.currentRound = currentRound # list of tuples (position, card)
 
@@ -26,6 +24,9 @@ class Node(Board):
         self.lead = self.currentRound[0][1] # Card
 
         self.bid = bid
+
+        # dict key=str(card) and 
+        self.children = self.getChildren() 
 
         self.minimax = None # int value of the minimax heuristic value of the node
 
@@ -46,9 +47,10 @@ class Node(Board):
                 childActivePosition, childCurrentRound, childTricks = self.endRound(card)
             childNSTricks, childEWTricks = childTricks
             # creates a dict of all the children in the hand
-            children[str(card)] = Node(childHands, 
+            children[str(card)] = Node(childHands, self.depth-1,
                                         childActivePosition, childCurrentRound,
-                                        childNSTricks, childEWTricks)
+                                        childNSTricks, childEWTricks, self.bid
+                                        )
 
         return children
     
@@ -69,10 +71,11 @@ class Node(Board):
     def endRound(self, card):
         # getWinner requires self.lead and self.bid
         winner, _ = self.getWinner(self.currentRound) # returns winning position and winning card (because recursion)
+        childEWTricks, childNSTricks = self.ewTricks, self.nsTricks
         if winner in 'ew': 
-            childEWTricks = self.ewTricks + 1
+            childEWTricks += 1
         else: 
-            childNSTricks = self.nsTricks + 1
+            childNSTricks += 1
         return (winner, 
                 [(self.activePosition, card)], 
                 (childNSTricks, childEWTricks))
@@ -80,22 +83,41 @@ class Node(Board):
 
     # calculates new minimax values from given depth for node and its children
     # takes in a heuristic function
-    def calculateMinimax(self, depth, isNSPlayer, heuristic):
-        if self.hands[self.activePosition] == [] or depth == 0:
+    # inspired by pseudocode from https://en.wikipedia.org/wiki/Minimax
+    def calculateMinimax(self, isNSPlayer, heuristic):
+        if self.hands[self.activePosition] == [] or self.depth == 0:
             self.minimax = heuristic(self) 
         elif isNSPlayer:
             value = float('-inf')
             for key in self.children:
                 childNode = self.children[key]
-                value = max(value, childNode.calculateMinimax(depth-1, False))
+                value = max(value, childNode.calculateMinimax(False, baseHeuristic))
             self.minimax = value
         else:
             value = float('inf')
             for key in self.children:
                 childNode = self.children[key]
-                value = min(value, childNode.calculateMinimax(depth-1, False))
+                value = min(value, childNode.calculateMinimax(False, baseHeuristic))
             self.minimax = value
         return self.minimax    
+
+    def getPlay(self):
+        if self.activePosition in 'ns': #maximizing player
+            value = float('-inf')
+            for key in self.children:
+                if self.children[key].minimax > value:
+                    value = self.children[key].minimax
+                    cardStr = key
+        else: # minimizing player
+            value = float('inf')
+            for key in self.children:
+                if self.children[key].minimax < value:
+                    value = self.children[key].minimax
+                    cardStr = key
+        for card in self.hands[self.activePosition]:
+            if str(card) == cardStr:
+                return card
+        
 
 ###################################################################
 #       Test Functions

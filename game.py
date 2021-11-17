@@ -7,11 +7,15 @@ from board import *
 
 class Game():
 
-    def __init__(self):
+    def __init__(self, playerDict):
         self.boardNumber = 1
         self.board = Board(self.boardNumber)
-
+        self.ewPoints = 0
+        self.nsPoints = 0
+        self.players = playerDict # dict where key=position, value=Player
+        self.history = [] # list of previous boards
 
     def newBoard(self):
+        self.history.append(self.board)
         self.boardNumber += 1
         self.board = Board(self.boardNumber)

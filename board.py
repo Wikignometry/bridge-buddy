@@ -26,7 +26,8 @@ class Board():
 #TODO: implement bidding system
 
         #TODO: remove harcoding
-        self.hands = {'n': [Card(3,'D'), Card(14,'S'), Card(7,'S'), Card(6,'S'), Card(14,'D'), Card(9,'C'), Card(13,'H'), Card(5,'C'), Card(13,'S'), Card(8,'H'), Card(8,'C'), Card(3,'H'), Card(7,'H')], 'e': [Card(2,'D'), Card(11,'D'), Card(9,'D'), Card(6,'C'), Card(8,'C'), Card(6,'H'), Card(3,'S'), Card(5,'S'), Card(5,'H'), Card(7,'D'), Card(4,'C'), Card(6,'D'), Card(4,'H')], 's': [Card(4,'D'), Card(12,'S'), Card(13,'D'), Card(4,'S'), Card(10,'S'), Card(11,'H'), Card(9,'S'), Card(11,'S'), Card(10,'D'), Card(13,'C'), Card(14,'C'), Card(2,'C'), Card(3,'C')], 'w': [Card(12,'C'), Card(12,'H'), Card(2,'H'), Card(12,'D'), Card(14,'H'), Card(7,'C'), Card(8,'D'), Card(9,'H'), Card(10,'C'), Card(11,'C'), Card(2,'S'), Card(10,'H'), Card(5,'D')]}
+        # self.hands = {'n': [Card(3,'D'), Card(14,'S'), Card(7,'S'), Card(6,'S'), Card(14,'D'), Card(9,'C'), Card(13,'H'), Card(5,'C'), Card(13,'S'), Card(8,'H'), Card(8,'C'), Card(3,'H'), Card(7,'H')], 'e': [Card(2,'D'), Card(11,'D'), Card(9,'D'), Card(6,'C'), Card(8,'C'), Card(6,'H'), Card(3,'S'), Card(5,'S'), Card(5,'H'), Card(7,'D'), Card(4,'C'), Card(6,'D'), Card(4,'H')], 's': [Card(4,'D'), Card(12,'S'), Card(13,'D'), Card(4,'S'), Card(10,'S'), Card(11,'H'), Card(9,'S'), Card(11,'S'), Card(10,'D'), Card(13,'C'), Card(14,'C'), Card(2,'C'), Card(3,'C')], 'w': [Card(12,'C'), Card(12,'H'), Card(2,'H'), Card(12,'D'), Card(14,'H'), Card(7,'C'), Card(8,'D'), Card(9,'H'), Card(10,'C'), Card(11,'C'), Card(2,'S'), Card(10,'H'), Card(5,'D')]}
+        self.hands = {'n': [Card(3,'D'), Card(14,'S')], 's': [Card(6,'S'), Card(14,'D')], 'e': [Card(5,'C'), Card(13,'S')], 'w': [Card(3,'H'), Card(7,'H')]}
         # self.dealHand() #self.hands = dict(key=position, value=list of Cards)
         self.sortHands()
         self.currentRound = [] #list of tuples (position, bid)
@@ -42,7 +43,7 @@ class Board():
         # tracks what cards have already been played
         self.history = [] # list of tuples of each round
 
-        self.endBoard = False # turns to True when the board is over (Game checks this)
+        self.endBoard = False # turns to True when the board is over (animation checks for this)
 
     # returns str of vulnerable pair(s)
     def getVulnerability(self):
@@ -53,7 +54,7 @@ class Board():
     def dealHand(self):
         hands = dict()
         cardsPerPlayer = 13
-        allCards = self.makeDeck()
+        allCards = makeDeck() # imported from helper
         for direction in 'nesw':
             hands[direction] = []
             for _ in range(cardsPerPlayer):
@@ -61,14 +62,6 @@ class Board():
                 allCards.remove(dealtCard) # prevents the card from being dealt twice
                 hands[direction].append(dealtCard)
         self.hands = hands
-
-    # make a deck of 52 cards
-    def makeDeck(self):
-        fullDeck = list()
-        for suit in 'SHDC': 
-            for number in range(2, 15): # ace is treated as 14
-                fullDeck.append(Card(number, suit))
-        return fullDeck
 
     # sort the hands into the right order
     def sortHands(self):
@@ -107,7 +100,7 @@ class Board():
         self.bids.append((self.activePosition, bid))
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
         if self.isBiddingEnd():
-            print('foo')
+            print('biddingEnd')
             self.endBidding()
     
     # completes the actions required to end bidding
@@ -117,9 +110,11 @@ class Board():
             if self.bids[-i][1] != SpecialBid('Pass'):
                 self.bid = self.bids[-i][1]
         if self.bid == SpecialBid('Pass'):
-            print('yay')
+            print('endBoard')
             self.endBoard = True #TODO: check for this in Game class
         self.status = 'p'
+        self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
+        # to skip the dealer and lead from their left
 
     # returns True if the bidding has ended
     def isBiddingEnd(self):
@@ -156,6 +151,7 @@ class Board():
         # checks for round end
         if len(self.currentRound) >= 4:
                 self.endRound()
+        print(card, self.activePosition)
 
     # location is a tuple (x, y) of the center of the hand
     def locateHand(self, hand, location):
@@ -208,6 +204,18 @@ class Board():
             card.draw(canvas)
 
 ###################################################################
+#           Helper Function
+
+# make a deck of 52 cards
+def makeDeck():
+    fullDeck = list()
+    for suit in 'SHDC': 
+        for number in range(2, 15): # ace is treated as 14
+            fullDeck.append(Card(number, suit))
+    return fullDeck
+
+
+###################################################################
 #       Test Functions
 
 # returns True if there are duplicates (used to test duplicates in deck/hand)
@@ -228,7 +236,7 @@ def testBoardClass():
     assert(Bid(6,'NT') in board1.bidOptions[5])
     assert(Bid(1,'S') in board1.bidOptions[0])
     assert(Bid(4,'D') in board1.bidOptions[3])
-    assert(not hasDuplicates(board1.makeDeck()))
+    assert(not hasDuplicates(makeDeck()))
     for position in 'nsew':
         assert(not hasDuplicates(board1.hands[position]))
     board1.lead = Card(8,'H')
@@ -243,43 +251,43 @@ def testBoardClass():
     assert(board1.isBiddingEnd() == False)
     print('Passed!')
 
-def appStarted(app):
-    app.board1 = Board(15)
-    app.board1.bid = Bid(4,'S') # bid is currently hard coded. #TODO: remove hardcoding
-    app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
+# def appStarted(app):
+#     app.board1 = Board(15)
+#     app.board1.bid = Bid(4,'S') # bid is currently hard coded. #TODO: remove hardcoding
+#     app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
 
-def mousePressed(app, event):
-    if app.board1.status == 'p':
-        # checks if card is pressed and does corresponding actions
-        for card in (app.board1.hands[app.board1.activePosition])[::-1]:
-            if card.isPressed(event.x, event.y):
-                app.board1.playCard(card, (app.width//2, app.height//2))
-                return
-    # checks if bid is pressed and does corresponding actions
-    if app.board1.status == 'b':
-        for row in app.board1.bidOptions:
-            for bid in row:
-                if bid.isPressed(event.x, event.y):
-                    app.board1.playBid(bid)
-    print(app.board1.bids)
+# def mousePressed(app, event):
+#     if app.board1.status == 'p':
+#         # checks if card is pressed and does corresponding actions
+#         for card in (app.board1.hands[app.board1.activePosition])[::-1]:
+#             if card.isPressed(event.x, event.y):
+#                 app.board1.playCard(card, (app.width//2, app.height//2))
+#                 return
+#     # checks if bid is pressed and does corresponding actions
+#     if app.board1.status == 'b':
+#         for row in app.board1.bidOptions:
+#             for bid in row:
+#                 if bid.isPressed(event.x, event.y):
+#                     app.board1.playBid(bid)
+#     print(app.board1.bids)
 
 
-def timerFired(app):
-    for _ , card in app.board1.currentRound:
-        card.move(0.3)
+# def timerFired(app):
+#     for _ , card in app.board1.currentRound:
+#         card.move(0.3)
 
-def redrawAll(app, canvas):
-    app.board1.locateHands({'n': (app.width//2, 50), 
-                            'e': (app.width-250, app.height//2), 
-                            's': (app.width//2, app.height-50), 
-                            'w': (250, app.height//2)})
-    app.board1.drawHands(canvas)
-    app.board1.drawPlayedCards(canvas)
-    if app.board1.status == 'b':
-        app.board1.drawPotentialBids(canvas)
+# def redrawAll(app, canvas):
+#     app.board1.locateHands({'n': (app.width//2, 50), 
+#                             'e': (app.width-250, app.height//2), 
+#                             's': (app.width//2, app.height-50), 
+#                             'w': (250, app.height//2)})
+#     app.board1.drawHands(canvas)
+#     app.board1.drawPlayedCards(canvas)
+#     if app.board1.status == 'b':
+#         app.board1.drawPotentialBids(canvas)
 
 ###################################################################
 #       Code to run
 
-testBoardClass()
-runApp(width=1200, height=700)
+# testBoardClass()
+# runApp(width=1200, height=700)

@@ -2,7 +2,7 @@
 #       Imported Files
 from button import *
 import math
-# 112_graphs and draw_helpers imported via button
+# 112_graphs and helper imported via button
 ###################################################################
 
 class Card(Button):
