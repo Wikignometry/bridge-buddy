@@ -1,6 +1,5 @@
 # this files contains helper functions
 
-
 def create_roundedRectangles(canvas, x1, y1, x2, y2, r, fill, outline):
     points = [
         #top left corner

@@ -33,12 +33,12 @@ def gameMode_mousePressed(app, event):
                 app.board.playCard(card, (app.width//2, app.height//2))
                 break
         while isinstance(app.game.players[app.board.activePosition], Bot):
-            botPlay(app)
+            botPlay(app) #FIXME make it have a delay
 
 def botPlay(app):
     app.game.players[app.board.activePosition].makeNode(app.board.hands, 4, app.board.activePosition, app.board.currentRound, 0, 0, app.board.bid)
     chosenCard = app.game.players[app.board.activePosition].botTurn()
-    print(chosenCard, app.board.activePosition)
+    print(f'botPlay: {chosenCard, app.board.activePosition}')
     app.board.playCard(chosenCard, (app.width//2, app.height//2))
 
 def gameMode_timerFired(app):

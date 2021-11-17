@@ -87,20 +87,26 @@ class Node(Board):
     # calculates new minimax values from given depth for node and its children
     # takes in a heuristic function
     # inspired by pseudocode from https://en.wikipedia.org/wiki/Minimax
-    def calculateMinimax(self, isNSPlayer, heuristic):
+    def calculateMinimax(self, isNSPlayer, heuristic, alpha=float('-inf'), beta=float('inf')):
         if self.depth == 0 or self.hands[self.activePosition] == []:
             self.minimax = heuristic(self) 
         elif isNSPlayer:
             value = float('-inf')
             for key in self.children:
                 childNode = self.children[key]
-                value = max(value, childNode.calculateMinimax(False, baseHeuristic))
+                value = max(value, childNode.calculateMinimax(False, baseHeuristic, alpha, beta))
+                if value >= beta: 
+                    break # beta cutoff point
+                alpha = max(alpha, value)
             self.minimax = value
         else:
             value = float('inf')
             for key in self.children:
                 childNode = self.children[key]
-                value = min(value, childNode.calculateMinimax(False, baseHeuristic))
+                value = min(value, childNode.calculateMinimax(False, baseHeuristic, alpha, beta))
+                if value <= alpha: 
+                    break # alpha cutoff point
+                beta = max(beta, value)
             self.minimax = value
         return self.minimax    
 

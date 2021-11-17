@@ -151,7 +151,6 @@ class Board():
         # checks for round end
         if len(self.currentRound) >= 4:
                 self.endRound()
-        print(card, self.activePosition)
 
     # location is a tuple (x, y) of the center of the hand
     def locateHand(self, hand, location):
