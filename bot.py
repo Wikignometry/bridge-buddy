@@ -11,8 +11,7 @@ from node import *
 
 class Bot():
 
-    def __init__(self, position):
-        self.position = position #TODO: is this necessary?
+    def __init__(self):
         self.history = []
         # self.possibleNodes = [] # list of Nodes
         # self.hand = None # list of Cards in the bot's hand

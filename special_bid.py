@@ -9,7 +9,7 @@ class SpecialBid(Button):
     def __init__(self, id):
         self.id = id
         if self.id == 'Pass':
-            super().__init__((50, 27), label='Pass', fill='green', 
+            super().__init__((50, 27), label='Pass', fill='dark green', 
                             outline='black', textFill='white')
 
     def locate(self, location):

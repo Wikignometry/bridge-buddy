@@ -21,12 +21,15 @@ class Node(Board):
         self.ewTricks = ewTricks # int (0-13)
         self.nsTricks = nsTricks # int (0-13)
 
-        self.lead = self.currentRound[0][1] # Card
+        if self.currentRound != []:
+            self.lead = self.currentRound[0][1] # Card
+        else: self.lead = None
 
         self.bid = bid
 
+        if self.depth > 0:
         # dict key=str(card) and 
-        self.children = self.getChildren() 
+            self.children = self.getChildren() 
 
         self.minimax = None # int value of the minimax heuristic value of the node
 
@@ -56,9 +59,9 @@ class Node(Board):
     
     # returns True if play is legal
     def islegalPlay(self, card):
-        lead = self.currentRound[0][1] # the first card in the round
-        return (lead.suit == card.suit or 
-            not lead.containsSuit(self.hands[self.activePosition]))
+        if self.lead == None: return True
+        return (self.lead.suit == card.suit or 
+            not self.lead.containsSuit(self.hands[self.activePosition]))
 
     # returns the child's activePosition and currentRound if the round continues
     def continueRound(self, card):
@@ -85,7 +88,7 @@ class Node(Board):
     # takes in a heuristic function
     # inspired by pseudocode from https://en.wikipedia.org/wiki/Minimax
     def calculateMinimax(self, isNSPlayer, heuristic):
-        if self.hands[self.activePosition] == [] or self.depth == 0:
+        if self.depth == 0 or self.hands[self.activePosition] == []:
             self.minimax = heuristic(self) 
         elif isNSPlayer:
             value = float('-inf')

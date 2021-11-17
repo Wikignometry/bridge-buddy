@@ -33,7 +33,7 @@ class Bid(Button):
 
     # returns color based on trump suit 
     def getColor(self):
-        bidColorDict = {'C': 'green', 'D': 'orange', 'H': 'red', 'S':'blue', 'NT':'grey'}
+        bidColorDict = {'C': 'dark green', 'D': 'orange', 'H': 'red', 'S':'blue', 'NT':'grey'}
         return bidColorDict[self.trump]
     
     # returns the drawn version of suit symbols
