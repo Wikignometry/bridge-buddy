@@ -1,7 +1,5 @@
 # Player is the class for all human players, and the superclass for the AI
 
-
-
 class Player():
 
     #TODO: more parameters to come
