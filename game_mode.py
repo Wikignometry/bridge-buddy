@@ -16,7 +16,7 @@ def appStarted(app):
                     's': Bot('s', 4, 13), 
                     'e': Player('Fa'), 
                     'w': Player('Fa')})
-    app.board = app.game.board
+    app.board = Board(2)
     print(app.game.botPosition)
     app.board.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
     app.playedCardPositions = {
@@ -75,6 +75,7 @@ def gameMode_redrawAll(app, canvas):
     app.board.drawPlayedCards(canvas)
     if app.board.status == 'b':
         app.board.drawPotentialBids(canvas)
+    app.board.drawStatistics(app, canvas)
 
 
 

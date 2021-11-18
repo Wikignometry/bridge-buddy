@@ -1,6 +1,6 @@
 # this files contains helper functions
 
-def create_roundedRectangles(canvas, x1, y1, x2, y2, r, fill, outline):
+def create_roundedRectangles(canvas, x1, y1, x2, y2, r=10, fill='white', outline='black'):
     points = [
         #top left corner
         x1, y1+r,

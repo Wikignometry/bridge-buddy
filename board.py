@@ -203,6 +203,76 @@ class Board():
         for _ , card in self.currentRound: 
             card.draw(canvas)
 
+    # draw statistics #TODO!!!
+    def drawStatistics(self, app, canvas):
+        width = 2*app.width//7
+        height = app.height//5
+        canvas.create_rectangle(0, app.height - height, 
+                                width, app.height, fill='black')
+        leftEdge = self.drawBoardBox(app, canvas, height) # box that indicated board no., dealer, and vulnerabilities
+        self.drawTricks(app, canvas, height, leftEdge)
+        # self.drawContract(canvas)
+        # self.drawFinalBid(canvas)
+
+
+    def drawTricks(self, app, canvas, boxHeight, leftEdge):
+        height = (boxHeight - 45)//2
+        width = 80
+        margin = 15
+        canvas.create_rectangle(leftEdge + 15, app.height - margin - height, 
+                                    leftEdge + 15 + width, app.height - margin,
+                                    fill='light grey')
+        canvas.create_text(leftEdge + 15 + width//2, app.height - margin - height//2,
+                                text=f'ns: {self.nsTricks}', font=('Calbri', 20))
+        canvas.create_rectangle(leftEdge + 15, app.height - 2*(margin + height), 
+                                    leftEdge + 15 + width, app.height - (2*margin + height),
+                                    fill='light grey')
+        canvas.create_text(leftEdge + 15 + width//2, app.height - 2*(margin + height) + height//2,
+                                text=f'ew: {self.ewTricks}', font=('Calbri', 20))
+        
+
+
+    # draw boardBox (see competitive analysis)
+    def drawBoardBox(self, app, canvas, statBoxHeight):
+        width = statBoxHeight - 20
+        rightEdge = 10 + width # places box on left edge of stats board
+        # rightEdge = statBoxWidth - 10 # places box on right edge of stats box
+        bottomEdge = app.height - 10
+        self.drawVulnerabilities(canvas, rightEdge, bottomEdge, width)
+        self.drawBoard(canvas, rightEdge, bottomEdge, width)
+        return rightEdge
+    
+    # draws the board number in boardBox
+    def drawBoard(self, canvas, rightEdge, bottomEdge, width):
+        canvas.create_rectangle(rightEdge - 4*width//5, bottomEdge - 4*width//5, 
+                                rightEdge - width//5, bottomEdge - width//5, 
+                                fill='white', outline='black')
+        canvas.create_text(rightEdge - width//2, bottomEdge - width//2, 
+                            text=self.index + 1, font=('Calbri', '40'))
+
+
+
+    # draws the rectangle/triangles for the vulnerabilities 
+    def drawVulnerabilities(self, canvas, rightEdge, bottomEdge, width):
+        # create the base shape (show ew vulnerabilitieis)
+        ewVulColor = ['white', 'firebrick3'][int('ew' in self.vul)]
+        canvas.create_rectangle( 
+                                rightEdge - width, bottomEdge - width, 
+                                rightEdge, bottomEdge, 
+                                fill=ewVulColor, outline='black')
+        # create the shape to display vulnerabilities for NS
+        nsVulColor = ['white', 'firebrick3'][int('ns' in self.vul)]
+        canvas.create_polygon(rightEdge - width, bottomEdge - width, 
+                              rightEdge, bottomEdge - width,
+                              rightEdge - width//2, bottomEdge - width//2,
+                              fill=nsVulColor, outline='black')
+        canvas.create_polygon(rightEdge - width, bottomEdge, 
+                              rightEdge, bottomEdge,
+                              rightEdge - width//2, bottomEdge - width//2,
+                              fill=nsVulColor, outline='black')
+
+
+
 ###################################################################
 #           Helper Function
 
