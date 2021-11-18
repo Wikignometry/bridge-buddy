@@ -19,10 +19,13 @@ class Board():
 
         self.bids = [] # list of tuples(position, Bid)
         self.bidOptions = self.getAllBids() # 2D list of all eligible bids
-        self.bid = None
+        self.bid = None # will become a Bid
+        self.declarer = None # will become 'n','e','s' or 'w' after bidding end
 
         self.status = 'b' # 'b' (bidding) or 'p' (playing)
         
+
+
 #TODO: implement bidding system
 
         #TODO: remove harcoding
@@ -53,7 +56,7 @@ class Board():
     # deals cards to each hand (note to future Fa: this could really easily be repurposed for other card games)
     def dealHand(self):
         hands = dict()
-        cardsPerPlayer = 13
+        cardsPerPlayer = 13 # so its not magic
         allCards = makeDeck() # imported from helper
         for direction in 'nesw':
             hands[direction] = []
@@ -99,9 +102,6 @@ class Board():
             self.clearLowerBids(bid)
         self.bids.append((self.activePosition, bid))
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
-        if self.isBiddingEnd():
-            print('biddingEnd')
-            self.endBidding()
     
     # completes the actions required to end bidding
     def endBidding(self):
@@ -109,6 +109,7 @@ class Board():
         for i in range(len(self.bids)):
             if self.bids[-i][1] != SpecialBid('Pass'):
                 self.bid = self.bids[-i][1]
+                self.declarer = self.bids[-i][0]
         if self.bid == SpecialBid('Pass'):
             print('endBoard')
             self.endBoard = True #TODO: check for this in Game class
@@ -148,9 +149,9 @@ class Board():
         card.targetLocation = targetLocation
         # moves active position in a clockwise direction
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
-        # checks for round end
         if len(self.currentRound) >= 4:
-                self.endRound()
+                    self.endRound()
+        
 
     # location is a tuple (x, y) of the center of the hand
     def locateHand(self, hand, location):

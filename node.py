@@ -28,14 +28,20 @@ class Node(Board):
         self.bid = bid
 
         if self.depth > 0:
-        # dict key=str(card) and 
+        # dict key=card and value = list of Nodes
             self.children = self.getChildren() 
 
         self.minimax = None # int value of the minimax heuristic value of the node
 
+    # 
+    def getMoreChildren(self, depth):
+        self.depth = depth
+        self.children = self.getChildren()
+
+    #FIXME: does the alpha beta pruning do anything if we don't put it here?
     # returns a list child Nodes from this node
     def getChildren(self):
-        children = dict() # key=str(Card), value=Node
+        children = dict() # key=card, value=Node
         for card in self.hands[self.activePosition]:
 
             childHands = copy.deepcopy(self.hands) # Cards are aliased, but we shouldn't be changing any of its attributes
@@ -50,13 +56,12 @@ class Node(Board):
                 childActivePosition, childCurrentRound, childTricks = self.endRound(card)
             childNSTricks, childEWTricks = childTricks
             # creates a dict of all the children in the hand
-            children[str(card)] = Node(childHands, self.depth-1,
+            children[card] = Node(childHands, self.depth-1,
                                         childActivePosition, childCurrentRound,
                                         childNSTricks, childEWTricks, self.bid
                                         )
-
         return children
-    
+
     # returns True if play is legal
     def islegalPlay(self, card):
         if self.lead == None: return True
@@ -113,19 +118,16 @@ class Node(Board):
     def getPlay(self):
         if self.activePosition in 'ns': #maximizing player
             value = float('-inf')
-            for key in self.children:
-                if self.children[key].minimax > value:
-                    value = self.children[key].minimax
-                    cardStr = key
+            for card in self.children: #card is key
+                if self.children[card].minimax > value:
+                    value = self.children[card].minimax
+            return card
         else: # minimizing player
             value = float('inf')
-            for key in self.children:
-                if self.children[key].minimax < value:
-                    value = self.children[key].minimax
-                    cardStr = key
-        for card in self.hands[self.activePosition]:
-            if str(card) == cardStr:
-                return card
+            for card in self.children:
+                if self.children[card].minimax < value:
+                    value = self.children[card].minimax
+            return card
         
 
 ###################################################################
@@ -133,4 +135,5 @@ class Node(Board):
 
 def testNode():
     print('Testing Node...', end='')
+
 

@@ -27,6 +27,7 @@ class Game():
     def getBotPosition(self):
         self.botPosition = '' 
         for position in self.players:
-            if isinstance(position, Bot):
+            if isinstance(self.players[position], Bot):
                 self.botPosition += position
+        
         

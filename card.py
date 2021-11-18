@@ -33,7 +33,9 @@ class Card(Button):
             return str(self.number) + self.suit
         return 'JQKA'[self.number % 11] + self.suit
 
-    
+    # makes object hashable
+    def __hash__(self):
+        return hash(str(self))
 
     # will crash if fed non-Card other argument
     # orders by suit first, then number
@@ -111,6 +113,8 @@ class Card(Button):
 def testCardClass():
     print('Testing Card...', end='')
     card1 = Card(5, 'C')
+    a = hash(card1)
+    assert(a == hash(Card(5, 'C')))
     assert(str(card1) == '5C')
     assert(card1.location == None)
     assert(card1.color == 'black')
