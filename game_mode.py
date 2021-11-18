@@ -19,6 +19,13 @@ def appStarted(app):
     app.board = app.game.board
     print(app.game.botPosition)
     app.board.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
+    app.playedCardPositions = {
+                                'n': (app.width//2, app.height//2 - 57), # 57 is width of a card
+                                'e': (app.width//2 + 57, app.height//2),
+                                's': (app.width//2, app.height//2 + 57),
+                                'w': (app.width//2 - 57, app.height//2)
+    }
+
 
 def gameMode_mousePressed(app, event):
     # checks if bid is pressed and does corresponding actions
@@ -37,7 +44,7 @@ def gameMode_mousePressed(app, event):
         # checks if card is pressed and does corresponding actions
         for card in (app.board.hands[app.board.activePosition])[::-1]:
             if card.isPressed(event.x, event.y):
-                app.board.playCard(card, (app.width//2, app.height//2))
+                app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 # checks for round end
                 print(f'currentRound: {app.board.currentRound}')
                 while isinstance(app.game.players[app.board.activePosition], Bot):
@@ -52,7 +59,7 @@ def botPlay(app):
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
 
-    app.board.playCard(chosenCard, (app.width//2, app.height//2))
+    app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
 
 def gameMode_timerFired(app):
     for _ , card in app.board.currentRound:
