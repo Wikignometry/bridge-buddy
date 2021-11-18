@@ -37,7 +37,6 @@ def gameMode_mousePressed(app, event):
         # checks if card is pressed and does corresponding actions
         for card in (app.board.hands[app.board.activePosition])[::-1]:
             if card.isPressed(event.x, event.y):
-                # botLook(app, card)
                 app.board.playCard(card, (app.width//2, app.height//2))
                 # checks for round end
                 print(f'currentRound: {app.board.currentRound}')
@@ -46,17 +45,10 @@ def gameMode_mousePressed(app, event):
                     botPlay(app) #FIXME make it have a delay - move to timerFired?
                 break
         
-                
-
-# # function for when the bot is watching the play
-# def botLook(app, card):
-#     for botPosition in app.game.botPosition:
-#         app.game.players[botPosition].updateMonteCarlo(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
 
 # function for when the bot is playing
 def botPlay(app):
     # app.game.players[app.board.activePosition].makeNode(app.board.hands, 4, app.board.activePosition, app.board.currentRound, 0, 0, app.board.bid)
-    print
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
 

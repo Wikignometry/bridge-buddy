@@ -1,4 +1,4 @@
-# bot class
+# bot class (contains Monte Carlo methods)
 ###################################################################
 #       Imported Files
 from player import *
@@ -6,7 +6,8 @@ from node import *
 # 112_graphs, random, card, bid, board, copy
 # special_bid, helper, button, heuristic imported via node
 ###################################################################
-
+# the idea for using monte carlo experiments on a double-dummy solver
+# came from https://en.wikipedia.org/wiki/Computer_bridge
 
 class Bot():
 
@@ -81,6 +82,7 @@ class Bot():
     # def endBidding(self):
     #     pass
 
+    # maybe #TODO? couldn't get this to work yet
     # # prunes Monte Carlo when a card becomes available    
     # def updateMonteCarlo(self, currentRound, nsTricks, ewTricks):
     #     # updating based on the cards played in the round
@@ -100,7 +102,7 @@ class Bot():
     def generateMonteCarlo(self, currentRound, nsTricks, ewTricks):
         montyHands = dict()
         montyHands[self.position] = self.hand
-        otherCards = self.makeUnkownDeck()
+        otherCards = self.makeUnkownDeck() # deck with known cards removed
         cardsPerPlayer = len(otherCards)//4 + 1
         if currentRound != []:
             leader = currentRound[0][0]

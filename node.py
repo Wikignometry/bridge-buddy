@@ -7,7 +7,7 @@ from board import *
 # special_bid, helper button imported via board
 from heuristic import *
 ###################################################################
-#
+
 
 class Node(Board):
 

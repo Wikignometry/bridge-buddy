@@ -29,5 +29,9 @@ class Game():
         for position in self.players:
             if isinstance(self.players[position], Bot):
                 self.botPosition += position
+
+    # draws players usernames below their cards
+    def drawUsernames(self):
+        pass #TODO
         
         
