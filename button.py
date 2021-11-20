@@ -12,7 +12,9 @@ from helper import *
 class Button():
 
     def __init__(self, dimension, location=None, action=(lambda: None), 
-                fill='blue', outline=None, label=None, textFill='black'):
+                fill='blue', outline=None, label=None, textFill='black', 
+                r=10, fontSize=12):
+        
         # tuples(x, y) of center of button or None 
         self.location = location
 
@@ -28,7 +30,9 @@ class Button():
         self.label = label
         self.textFill = textFill
 
-        self.fontSize = 12 # int
+        # int
+        self.r = r 
+        self.fontSize = fontSize 
 
     # returns True if the button isPressed
     #       –> assumes that button is rectangular (doesn't account for rounded corners)
@@ -46,7 +50,7 @@ class Button():
         create_roundedRectangles(canvas, 
                                 x - self.width//2, y - self.height//2,
                                 x + self.width//2, y + self.height//2,
-                                r=10, fill=self.fill, outline=self.outline)
+                                r=self.r, fill=self.fill, outline=self.outline)
         if self.label != None:
             canvas.create_text(x, y, 
                         text=f'{self.label}', 

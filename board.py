@@ -250,13 +250,20 @@ class Board():
         rightEdge = 10 + width # places box on left edge of stats board
         # rightEdge = statBoxWidth - 10 # places box on right edge of stats box
         bottomEdge = app.height - 10
+
+        # draws box and corresponding red/white triangles (shows as trapezoids)
         self.drawVulnerabilities(canvas, rightEdge, bottomEdge, width)
+        
+        # draws the board number and the square that encapsulates it
         self.drawBoardNumber(canvas, rightEdge, bottomEdge, width)
+        
+        # draws the letter 'D' to indicate the dealer
         self.drawDealer(canvas, rightEdge, bottomEdge, width)
         return rightEdge
     
     # draws the D for who the dealer is
     def drawDealer(self, canvas, rightEdge, bottomEdge, width):
+        # dict relating dealer position to where each of the 'D' should go
         positionDict = {'n': (rightEdge - width//2, bottomEdge - 9*width//10),
                         'e': (rightEdge - width//10, bottomEdge - width//2),
                         's': (rightEdge - width//2, bottomEdge - width//10),
@@ -276,12 +283,14 @@ class Board():
 
     # draws the rectangle/triangles for the vulnerabilities 
     def drawVulnerabilities(self, canvas, rightEdge, bottomEdge, width):
-        # create the base shape (show ew vulnerabilitieis)
+        
+        # create the square (show ew vulnerabilitieis)
         ewVulColor = ['white', 'firebrick3'][int('ew' in self.vul)]
         canvas.create_rectangle( 
                                 rightEdge - width, bottomEdge - width, 
                                 rightEdge, bottomEdge, 
                                 fill=ewVulColor, outline='black')
+        
         # create the shape to display vulnerabilities for NS
         nsVulColor = ['white', 'firebrick3'][int('ns' in self.vul)]
         canvas.create_polygon(rightEdge - width, bottomEdge - width, 
@@ -292,6 +301,8 @@ class Board():
                               rightEdge, bottomEdge,
                               rightEdge - width//2, bottomEdge - width//2,
                               fill=nsVulColor, outline='black')
+
+
 
 
 
