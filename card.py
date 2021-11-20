@@ -17,6 +17,7 @@ class Card(Button):
         self.location = None # tuple(x, y) or None
         self.targetLocation = None # where it wants to go
 
+        # card dimensions from https://www.playingcardspersonalised.co.uk/bridge-size-cards
         super().__init__(dimension=(57,89), 
                         fill='white',
                         outline='black')

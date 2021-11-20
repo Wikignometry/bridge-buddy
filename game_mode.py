@@ -13,12 +13,12 @@ from bot import *
 def appStarted(app):
     app.mode = 'gameMode'
     app.game = Game({'n': Player('Fa'), 
-                    's': Bot('s', 4, 13), 
+                    's': Bot('s', 4, 9), 
                     'e': Player('Fa'), 
                     'w': Player('Fa')})
-    app.board = Board(2)
+    app.board = app.game.board
     print(app.game.botPosition)
-    app.board.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
+    app.board.locateBids((app.width//2, app.height//2))
     app.playedCardPositions = {
                                 'n': (app.width//2, app.height//2 - 57), # 57 is width of a card
                                 'e': (app.width//2 + 57, app.height//2),
@@ -46,12 +46,21 @@ def gameMode_mousePressed(app, event):
             if card.isPressed(event.x, event.y):
                 app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 # checks for round end
+                
                 print(f'currentRound: {app.board.currentRound}')
                 while isinstance(app.game.players[app.board.activePosition], Bot):
                     print(app.game.players[app.board.activePosition], app.board.activePosition)
                     botPlay(app) #FIXME make it have a delay - move to timerFired?
                 break
-        
+    if app.board.endBoard:
+        app.game.newBoard()
+        app.board = app.game.board 
+        app.board.locateBids((app.width//2, app.height//2))
+    # adjusts the card position for played card
+    app.board.locateHands({'n': (app.width//2, 50),
+                            'e': (app.width-250, app.height//2), 
+                            's': (app.width//2, app.height-50), 
+                            'w': (250, app.height//2)})
 
 # function for when the bot is playing
 def botPlay(app):
@@ -61,17 +70,21 @@ def botPlay(app):
 
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
 
+# repositions items when size of screen changes
+def gameMode_sizeChanged(app):
+    app.board.locateBids((app.width//2, app.height//2))
+    app.board.locateHands({'n': (app.width//2, 50),
+                            'e': (app.width-250, app.height//2), 
+                            's': (app.width//2, app.height-50), 
+                            'w': (250, app.height//2)})
+
 def gameMode_timerFired(app):
     for _ , card in app.board.currentRound:
         card.move(0.3) #TODO: fix magic number?
 
 def gameMode_redrawAll(app, canvas):
-    canvas.create_rectangle(0, 0, app.width, app.height, fill='forest green')
-    app.board.locateHands({'n': (app.width//2, 50), 
-                            'e': (app.width-250, app.height//2), 
-                            's': (app.width//2, app.height-50), 
-                            'w': (250, app.height//2)})
-    app.board.drawHands(canvas)
+    canvas.create_rectangle(0, 0, app.width, app.height, fill='forest green') 
+    app.board.drawHands(canvas) 
     app.board.drawPlayedCards(canvas)
     if app.board.status == 'b':
         app.board.drawPotentialBids(canvas)

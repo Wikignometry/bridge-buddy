@@ -24,6 +24,7 @@ class Board():
 
         self.status = 'b' # 'b' (bidding) or 'p' (playing)
         
+        self.endBoard = False # turns to true when board ends
 
 
 #TODO: implement bidding system
@@ -205,30 +206,41 @@ class Board():
 
     # draw statistics #TODO!!!
     def drawStatistics(self, app, canvas):
-        width = 2*app.width//7
+        width = app.width//4
         height = app.height//5
         canvas.create_rectangle(0, app.height - height, 
                                 width, app.height, fill='black')
         leftEdge = self.drawBoardBox(app, canvas, height) # box that indicated board no., dealer, and vulnerabilities
-        self.drawTricks(app, canvas, height, leftEdge)
-        # self.drawContract(canvas)
-        # self.drawFinalBid(canvas)
+        leftEdge = self.drawTricks(app, canvas, height, leftEdge)
+        if self.status == 'p':
+            self.drawFinalBid(app, canvas, leftEdge)
+
+    
+    def drawFinalBid(self, app, canvas, leftEdge):
+        contract = copy.deepcopy(self.bid)
+        contract.width, contract.height = (60, 54)
+        contract.fontSize = 25
+        contract.location = (leftEdge + contract.width//2 + 5, app.height - 10 - contract.height//2)
+        contract.draw(canvas)
 
 
+
+    # draw an indication of number of trick gained for each pair
     def drawTricks(self, app, canvas, boxHeight, leftEdge):
-        height = (boxHeight - 45)//2
+        margin = 10
+        height = (boxHeight - 3*margin)//2
         width = 80
-        margin = 15
-        canvas.create_rectangle(leftEdge + 15, app.height - margin - height, 
-                                    leftEdge + 15 + width, app.height - margin,
+        canvas.create_rectangle(leftEdge + margin, app.height - margin - height, 
+                                    leftEdge + margin + width, app.height - margin,
                                     fill='light grey')
-        canvas.create_text(leftEdge + 15 + width//2, app.height - margin - height//2,
+        canvas.create_text(leftEdge + margin + width//2, app.height - margin - height//2,
                                 text=f'ns: {self.nsTricks}', font=('Calbri', 20))
-        canvas.create_rectangle(leftEdge + 15, app.height - 2*(margin + height), 
-                                    leftEdge + 15 + width, app.height - (2*margin + height),
+        canvas.create_rectangle(leftEdge + margin, app.height - 2*(margin + height), 
+                                    leftEdge + margin + width, app.height - (2*margin + height),
                                     fill='light grey')
-        canvas.create_text(leftEdge + 15 + width//2, app.height - 2*(margin + height) + height//2,
+        canvas.create_text(leftEdge + margin + width//2, app.height - 2*(margin + height) + height//2,
                                 text=f'ew: {self.ewTricks}', font=('Calbri', 20))
+        return leftEdge + 15 + width
         
 
 
@@ -239,14 +251,24 @@ class Board():
         # rightEdge = statBoxWidth - 10 # places box on right edge of stats box
         bottomEdge = app.height - 10
         self.drawVulnerabilities(canvas, rightEdge, bottomEdge, width)
-        self.drawBoard(canvas, rightEdge, bottomEdge, width)
+        self.drawBoardNumber(canvas, rightEdge, bottomEdge, width)
+        self.drawDealer(canvas, rightEdge, bottomEdge, width)
         return rightEdge
     
+    # draws the D for who the dealer is
+    def drawDealer(self, canvas, rightEdge, bottomEdge, width):
+        positionDict = {'n': (rightEdge - width//2, bottomEdge - 9*width//10),
+                        'e': (rightEdge - width//10, bottomEdge - width//2),
+                        's': (rightEdge - width//2, bottomEdge - width//10),
+                        'w': (rightEdge - 9*width//10, bottomEdge - width//2)}
+        x0, y0 = positionDict[self.dealer]
+        canvas.create_text(x0, y0, text='D', font=('Calbri', '20', 'bold'))                
+
     # draws the board number in boardBox
-    def drawBoard(self, canvas, rightEdge, bottomEdge, width):
+    def drawBoardNumber(self, canvas, rightEdge, bottomEdge, width):
         canvas.create_rectangle(rightEdge - 4*width//5, bottomEdge - 4*width//5, 
                                 rightEdge - width//5, bottomEdge - width//5, 
-                                fill='white', outline='black')
+                                fill='light grey', outline='black')
         canvas.create_text(rightEdge - width//2, bottomEdge - width//2, 
                             text=self.index + 1, font=('Calbri', '40'))
 

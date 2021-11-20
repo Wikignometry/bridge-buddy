@@ -28,6 +28,8 @@ class Button():
         self.label = label
         self.textFill = textFill
 
+        self.fontSize = 12 # int
+
     # returns True if the button isPressed
     #       –> assumes that button is rectangular (doesn't account for rounded corners)
     def isPressed(self, x, y):
@@ -48,7 +50,7 @@ class Button():
         if self.label != None:
             canvas.create_text(x, y, 
                         text=f'{self.label}', 
-                        font = ('Calbri', 12),
+                        font = ('Calbri', self.fontSize),
                         anchor='center', 
                         justify='center', 
                         fill=self.textFill)
