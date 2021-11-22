@@ -22,18 +22,42 @@ class Bot():
 
         self.knownCards = [] # list of cards we've seen (and therefore cannot be in opponent's hands)
 
+
+
+
+###################################################################
+# bidding
+
     def assignBid(self, bid):
         self.bid = bid
 
-
+    # this bidding system only considers partner's cards (not opponents)
+    def playBid(self, hand, bids):
+        self.points = self.getHandPoints(hand) # points in our hand
+        self.partner = self.getPartner(self.position)
+        if self.hasNoBids(bids):
+            return self.firstBid(hand)
+        elif self.firstBidPosition(bids) == self.partner:
+            self.intepretPartnerFirstBid()
+        elif self.firstBidPosition(bids) == self.position:
+            self.interpretPartnerResponse()
         
 
-    # def makeNode(self, hands, depth, activePosition, currentRound, nsTricks, ewTricks, bid):
-    #     self.node = Node(hands, depth, activePosition, currentRound, nsTricks, ewTricks, bid)
 
-    # def botTurn(self):
-    #     self.node.calculateMinimax(True, baseHeuristic)
-    #     return self.node.getPlay()
+        pass
+        
+    # getting points via the standard A=4, K=3, Q=2, J=1 evaluation system
+    def getHandPoints(hand):
+        points = 0
+        for card in hand:
+            if card.number > 10:
+                points += card.number - 10
+        return points
+
+
+
+###################################################################
+# playing
 
     # actions to perform when the board is started
     def startPlay(self, hand):
@@ -78,25 +102,7 @@ class Bot():
 
         return cardPick
             
-    # # TODO: update monte carlo when dummy reveals hand
-    # def endBidding(self):
-    #     pass
-
-    # maybe #TODO? couldn't get this to work yet
-    # # prunes Monte Carlo when a card becomes available    
-    # def updateMonteCarlo(self, currentRound, nsTricks, ewTricks):
-    #     # updating based on the cards played in the round
-    #     for position, card in currentRound: 
-    #         print(position, card)   
-    #         for i in range(len(self.possibleNodes)):
-    #             print(self.possibleNodes[i].hands[position])
-    #             # if card shown does not correspond with guess, pop the possible Node and generate a new one
-    #             if card not in self.possibleNodes[i].hands[position]:
-    #                 self.possibleNodes.pop(i)
-    #                 self.generateMonteCarlo(currentRound, nsTricks, ewTricks) # appends new node to possible nodes
-    #             # check what card the bot played and update the nodes accordingly
-    #             self.possibleNodes[i] = self.possibleNodes[i].children[card] 
-
+   
                
     # appends a new MonteCarlo-ed node to possibleNodes
     def generateMonteCarlo(self, currentRound, nsTricks, ewTricks):
@@ -128,4 +134,31 @@ class Bot():
             deck.remove(card)
         return deck
 
-    
+###################################################################
+# old/irrelevant/tbd code
+
+ # # TODO: update monte carlo when dummy reveals hand
+    # def endBidding(self):
+    #     pass
+
+    # maybe #TODO? couldn't get this to work yet
+    # # prunes Monte Carlo when a card becomes available    
+    # def updateMonteCarlo(self, currentRound, nsTricks, ewTricks):
+    #     # updating based on the cards played in the round
+    #     for position, card in currentRound: 
+    #         print(position, card)   
+    #         for i in range(len(self.possibleNodes)):
+    #             print(self.possibleNodes[i].hands[position])
+    #             # if card shown does not correspond with guess, pop the possible Node and generate a new one
+    #             if card not in self.possibleNodes[i].hands[position]:
+    #                 self.possibleNodes.pop(i)
+    #                 self.generateMonteCarlo(currentRound, nsTricks, ewTricks) # appends new node to possible nodes
+    #             # check what card the bot played and update the nodes accordingly
+    #             self.possibleNodes[i] = self.possibleNodes[i].children[card] 
+
+# def makeNode(self, hands, depth, activePosition, currentRound, nsTricks, ewTricks, bid):
+    #     self.node = Node(hands, depth, activePosition, currentRound, nsTricks, ewTricks, bid)
+
+    # def botTurn(self):
+    #     self.node.calculateMinimax(True, baseHeuristic)
+    #     return self.node.getPlay()    

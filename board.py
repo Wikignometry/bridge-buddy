@@ -99,7 +99,7 @@ class Board():
 
     # completes actions that need to happend when a bid is clicked
     def playBid(self, bid):
-        if isinstance(bid, Bid):
+        if isinstance(bid, Bid): # specialBids have superclass Button, not Bid
             self.clearLowerBids(bid)
         self.bids.append((self.activePosition, bid))
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]

@@ -10,7 +10,7 @@ class Card(Button):
     def __init__(self, number, suit):
 
         self.suit = suit # 'C', 'D', 'H', or 'S'
-        self.number = number # int, (jack –> ace) = (11 –> 14)
+        self.number = number # int (jack –> ace = 11 –> 14)
         
         self.setColor() # self.color: 'red' or 'black'
 

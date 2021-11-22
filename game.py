@@ -33,5 +33,12 @@ class Game():
     # draws players usernames below their cards
     def drawUsernames(self):
         pass #TODO
-        
+
+    # returns True is the game has ended
+    def isGameEnd(self):
+        return (self.board.drawBoardNumber > 34)
+
+    # draws the game over screen
+    def drawGameOver(self):
+        pass
         
