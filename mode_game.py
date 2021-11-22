@@ -65,7 +65,7 @@ def gameMode_mousePressed(app, event):
                 break # to prevent multiple overlapping cards from being pressed
     if app.board.endBoard:
         app.game.newBoard()
-        app.board = app.game.board
+        app.board = app.game.board #TODO: maybe change all app.board to app.game.board
         app.board.locateBids((app.width//2, app.height//2))
     # adjusts the card position for played card
     app.board.locateHands(app.handLocations)
@@ -95,6 +95,7 @@ def gameMode_redrawAll(app, canvas):
         app.board.drawPotentialBids(canvas)
     app.board.drawStatistics(app, canvas)
     app.game.drawUsernames(canvas, app.handLocations, app.board.activePosition)
+    app.board.drawBidHistory(app, canvas)
 
 
 

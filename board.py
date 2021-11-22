@@ -204,6 +204,20 @@ class Board():
         for _ , card in self.currentRound: 
             card.draw(canvas)
 
+    # draws the bidding history 
+    def drawBidHistory(self, app, canvas):
+        width = app.width//4
+        height = app.height//3
+        x1, y1 = (app.width, app.height) # refers to bottom right of the screen
+        canvas.create_rectangle(x1 - width, y1 - height,
+                                x1, y1,
+                                fill = 'grey')
+    #     self.drawBidColumns(canvas)
+
+#TODO
+    # def drawBidColumns(canvas):
+
+
     # draw statistics #TODO!!!
     def drawStatistics(self, app, canvas):
         width = app.width//4
@@ -215,15 +229,13 @@ class Board():
         if self.status == 'p':
             self.drawFinalBid(app, canvas, leftEdge)
 
-    
+    # draws a larger final bid in the stats box
     def drawFinalBid(self, app, canvas, leftEdge):
         contract = copy.deepcopy(self.bid)
         contract.width, contract.height = (60, 54)
         contract.fontSize = 25
         contract.location = (leftEdge + contract.width//2 + 5, app.height - 10 - contract.height//2)
         contract.draw(canvas)
-
-
 
     # draw an indication of number of trick gained for each pair
     def drawTricks(self, app, canvas, boxHeight, leftEdge):
@@ -302,10 +314,6 @@ class Board():
                               rightEdge - width//2, bottomEdge - width//2,
                               fill=nsVulColor, outline='black')
 
-
-
-
-
 ###################################################################
 #           Helper Function
 
@@ -316,7 +324,6 @@ def makeDeck():
         for number in range(2, 15): # ace is treated as 14
             fullDeck.append(Card(number, suit))
     return fullDeck
-
 
 ###################################################################
 #       Test Functions
