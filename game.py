@@ -31,8 +31,19 @@ class Game():
                 self.botPosition += position
 
     # draws players usernames below their cards
-    def drawUsernames(self):
-        pass #TODO
+    def drawUsernames(self, canvas, positionDict, activePosition):
+        sampleCard = Card(14, 'S') # created arbitrary card to get height value (so changes are consistent + no magic no.)
+        length = self.board.cardDislayWidth * 12 + sampleCard.width # width of initial hand
+        height = sampleCard.height//3 # height of username display box
+        for position in positionDict:
+            color =  ['light grey', 'yellow'][int(position == activePosition)]
+            x, y = positionDict[position]
+            bottomEdge = y + sampleCard.height//2
+            create_roundedRectangles(canvas,
+                                    x - length//2, bottomEdge - height, 
+                                    x + length//2, bottomEdge, 
+                                    fill=color)
+        #TODO add usernames
 
     # returns True is the game has ended
     def isGameEnd(self):
