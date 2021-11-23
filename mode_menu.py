@@ -53,3 +53,4 @@ def menuMode_redrawAll(app, canvas):
 
 
 runApp(width=1200, height=700)
+

@@ -32,7 +32,10 @@ def initiateGameMode(app, players):
     }
     app.board.locateBids((app.width//2, app.height//2))
     app.board.locateHands(app.handLocations)
-
+    for position in app.game.players:
+        player = app.game.players[position]
+        # if type(player) == Bot: # should be specific to bots (not players if changed to child class later on)
+            # player.interpretInitialHand(app.board.hands[position])
 
 
 def gameMode_mousePressed(app, event):
@@ -95,7 +98,7 @@ def gameMode_redrawAll(app, canvas):
         app.board.drawPotentialBids(canvas)
     app.board.drawStatistics(app, canvas)
     app.game.drawUsernames(canvas, app.handLocations, app.board.activePosition)
-    app.board.drawBidHistory(app, canvas)
+    # app.board.drawBidHistory(app, canvas)
 
 
 

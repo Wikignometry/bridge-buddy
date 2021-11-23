@@ -204,14 +204,15 @@ class Board():
         for _ , card in self.currentRound: 
             card.draw(canvas)
 
-    # draws the bidding history 
-    def drawBidHistory(self, app, canvas):
-        width = app.width//4
-        height = app.height//3
-        x1, y1 = (app.width, app.height) # refers to bottom right of the screen
-        canvas.create_rectangle(x1 - width, y1 - height,
-                                x1, y1,
-                                fill = 'grey')
+#TODO: finish this
+    # # draws the bidding history 
+    # def drawBidHistory(self, app, canvas):
+    #     width = app.width//4
+    #     height = app.height//3
+    #     x1, y1 = (app.width, app.height) # refers to bottom right of the screen
+    #     canvas.create_rectangle(x1 - width, y1 - height,
+    #                             x1, y1,
+    #                             fill = 'grey')
     #     self.drawBidColumns(canvas)
 
 #TODO

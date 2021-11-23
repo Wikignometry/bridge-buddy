@@ -31,6 +31,10 @@ class Bid(Button):
     def __repr__(self):
         return str(self.contract) + self.trump
 
+    # makes it hashable
+    def __hash__(self):
+        return hash(self.contract + self.trump)
+
     # returns color based on trump suit 
     def getColor(self):
         bidColorDict = {'C': 'dark green', 'D': 'orange', 'H': 'red', 'S':'blue', 'NT':'grey'}
