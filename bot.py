@@ -549,9 +549,8 @@ class Bot():
     # returns a deck with all the cards not in hand
     def makeUnkownDeck(self):
         deck = makeDeck()
-        print(f'known{self.knownCards}')
+        # print(f'known{self.knownCards}')
         for card in self.knownCards:
-            print(card)
             deck.remove(card)
         return deck
 
