@@ -15,7 +15,7 @@ class SpecialBid(Button):
     def locate(self, location):
         xCenter, yCenter = location
         if self.id == 'Pass':
-            self.location = (xCenter-70, yCenter+74)
+            self.location = (xCenter - 50, yCenter + 100)
 
     def __repr__(self):
         return self.id

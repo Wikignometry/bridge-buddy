@@ -8,7 +8,7 @@ from special_bid import *
 # special_bid, helper, button, heuristic imported via node
 ###################################################################
 # the idea for using monte carlo experiments on a double-dummy solver
-# came from https://en.wikipedia.org/wiki/Computer_bridge
+# came partially from https://en.wikipedia.org/wiki/Computer_bridge
 
 class Bot():
 
@@ -21,7 +21,7 @@ class Bot():
         self.hand = [] # list of Cards in the bot's hand
         self.breadth = breadth # refers to the number of Monte Carlo simulations to run
 
-        self.knownCards = [] # list of cards we've seen (and therefore cannot be in opponent's hands)
+        self.knownCards = set() # set of cards we've seen (and therefore cannot be in opponent's hands)
 
 
 
@@ -43,7 +43,7 @@ class Bot():
         # min and max in inclusive
         self.forcing = False # otherwise, Bid
         self.conventionUsed = None # 's' for stayman, 'j' for jacoby
-        print(self.position, self.distribution, self.points)
+        # print(self.position, self.distribution, self.points)
 
     # updates the distribution information based on bidding data
     def updateDistribution(self, otherDistribution, suit, min, max):
@@ -82,6 +82,7 @@ class Bot():
             distribution[suit] = (0, 13)
         return distribution
 
+    # returns the bid to be played
     def playBid(self, bids): # bids are list of tuple (position, bid)
         
         self.bids = bids
@@ -125,13 +126,134 @@ class Bot():
             if isinstance(bid, Bid) and bidder in position:
                 return bid
 
+    # get bid when partner opens
     def getRespondingBid(self, bids):
-        print('foo')
-
-    
-
-    def interpretPartnerBids(self, bids):
         if self.round == 0:
+            return self.firstResponse(bids)
+        else:
+            return self.otherResponse(bids)
+
+    # response to any partner bid after the opening
+    def otherResponse(self, bids):
+        print(f'otherResponse:{self.bids[:-2][1]}')
+        if self.conventionUsed == 'b': #blackwood
+            if self.hasFullAces() and self.getLastBid().contract == 5:
+                if self.getTotalPoints() > 40: # grand slam points
+                    return Bid(5, 'NT')
+                else:
+                    return Bid(6, self.longestSuitInPartnership())
+            elif self.hasFullKings() and self.getLastBid().contract == 6:
+                return Bid(7, self.longestSuitInPartnership())
+            else:
+                return self.getMinimumBidInSuit(self.longestSuitInPartnership(), bids)
+        elif self.isMinimumSlam():
+            self.conventionUsed = 'b'
+            return Bid(4, 'NT')
+        elif self.isMinimumGame(self.longestSuitInPartnership()):
+            return Bid(1, self.longestSuitInPartnership()).suitGame()
+    
+    def hasFullAces(self):
+        aceCount = 0
+        for card in self.hand:
+            if card.number == 14:
+                aceCount += 1
+        return aceCount == 4 # over 4 may mean that it's 0, not 4 kings
+
+    def hasFullKings(self):
+        kingCount = 0
+        for card in self.hand:
+            if card.number == 13:
+                kingCount += 1
+        return kingCount == 4 # over 4 may mean that it's 0, not 4 kings
+
+
+    # returns the total minimum points between the pair
+    def getTotalPoints(self):
+        return self.points + self.partnerPoints[0]
+
+    # first response to partner's opening bid
+    def firstResponse(self, bids):
+        opening = self.getBid(self.partner, 1, bids)
+        if self.biddingCategory == 'NT':
+            if (self.distribution['S'] >= 5 or 
+                self.distribution['H'] >= 5 or 
+                (self.distribution['S'] <= 4 and
+                self.distribution['H'] <= 4)):
+
+                self.conventionUsed = 'j'
+                longestSuit = self.longestSuitInHand()
+                jacobySuit = ['NT', 'S', 'H', 'D', 'C'][['NT', 'S', 'H', 'D', 'C'].index(longestSuit) - 1]
+                return self.getMinimumBidInSuit(jacobySuit)
+            else:  
+                self.conventionUsed = 's' #stayman
+                return self.getMinimumBidInSuit('C', bids)
+        elif self.biddingCategory == 'strong':
+            if self.points > 8:
+                if self.isEvenDistribution():
+                    return self.getMinimumBidInSuit('NT', bids)
+                for suit in 'HSCD':
+                    if self.distribution[suit] > 5:
+                        if suit == 'D':
+                            return Bid(3, 'D')
+                        return self.getMinimumBidInSuit(suit, bids)
+            return self.getMinimumBidInSuit('D')
+        elif self.biddingCategory == 'weak':
+            if self.isMinimumGame(opening.trump):
+                return Bid(2, 'NT')
+            else:
+                return SpecialBid('Pass')
+        else: #normal
+            if (
+                (opening.trump in 'HS' and 
+                self.distribution[opening.trump] >= 3) 
+                or
+                (opening.trump in 'CD' and 
+                self.distribution[opening.trump] >= 4 and 
+                self.longestSuitInHand() in 'CD')
+                ):
+                return self.getMinimumBidInSuit(opening.trump, bids)
+            else:
+                return self.getMinimumBidInSuit(self.longestSuitInHand(), bids)
+
+    # returns longest suit in the partnership based on min values
+    def longestSuitInPartnership(self):
+        maxSuit = 'S' # arbitrary
+        for suit in self.distribution:
+            if self.distribution[maxSuit] + self.partnerDistribution[maxSuit][0] < self.distribution[suit] + self.partnerDistribution[suit][0]:
+                maxSuit = suit
+        return maxSuit
+
+    # returns the longest suit in the hand
+    def longestSuitInHand(self):
+        maxSuit = 'S' # arbitrary
+        for suit in self.distribution:
+            if self.distribution[maxSuit] < self.distribution[suit]:
+                maxSuit = suit
+        return maxSuit
+
+    # returns True if the the partnership is definitely in game        
+    def isMinimumGame(self, suit):
+        totalPoints = self.points + self.partnerPoints[0] # the minimum number of points partner may have
+        if suit == None:
+            return totalPoints >= 24 
+        elif suit in 'HS':
+            return totalPoints >= 24 
+        elif suit == 'NT':
+            return totalPoints >= 25
+        else:
+            return totalPoints >= 27
+    
+    # returns True if enough points for slam, returns False otherwise 
+    #TODO double check slam value
+    def isMinimumSlam(self):
+        totalPoints = self.points + self.partnerPoints[0] # the minimum number of points partner may have
+        return totalPoints > 32
+
+    # evaluates known values of partner's hand
+    def interpretPartnerBids(self, bids):
+        if self.getLastBid == SpecialBid('Pass'): # don't interpret passes
+            return
+        elif self.round == 0:
             print('round 0')
             self.interpretPartnerFirstBid(bids)
         elif self.round == 1:
@@ -161,9 +283,10 @@ class Bot():
         opening = self.getBid(self.partner, 1, bids)
         response = self.getBid(self.partner, 1, bids) # our bid
         rebid = self.getBid(self.partner, 2, bids) # partner's bid
-        biddingCategory = self.getBidCategory()
-        if biddingCategory == 'NT':
+        self.getBidCategory()
+        if self.biddingCategory == 'NT':
             if self.conventionUsed == 's': # stayman convention
+                self.conventionUsed = None # so it only reads stayman once
                 if rebid.trump == 'S':
                     self.updateDistribution(self.partnerDistribution, 'S', 4, float('inf'))
                     self.updateDistribution(self.partnerDistribution, 'H', 0, 4)
@@ -173,13 +296,14 @@ class Bot():
                     self.updateDistribution(self.partnerDistribution, 'S', 0, 4)       
                     self.updateDistribution(self.partnerDistribution, 'H', 0, 4)     
             # jacoby convention has no semantic meaning
-        elif biddingCategory == 'strong':
+        elif self.biddingCategory == 'strong':
             if self.getBid(self.position, 1, bids).trump == 'D':
                 if rebid.trump == 'NT':
                     self.partnerPoints = self.updatePoints(self.partnerPoints, 22, 24)
+                    self.biddingCategory = 'NT'
                 else:
                     self.forcing = Bid(3, rebid.trump) # refers to how high you need to go to before passing
-        elif biddingCategory == 'weak':
+        elif self.biddingCategory == 'weak':
             if rebid.trump == response.trump:
                 self.partnerPoints = self.updatePoints(self.partnerPoints, 5, 8)
             else:
@@ -217,20 +341,19 @@ class Bot():
                 else:
                     self.partnerPoints = self.updatePoints(self.partnerPoints, 18, 21)
                 self.updateDistribution(self.partnerDistribution, rebid.trump, 4, 13)
-            
-                
 
 
     def getMinimumBidInSuit(self, suit, bids):
-        maxBid = self.getMaxBid(bids)
+        maxBid = self.getLastBid(bids)
         for contract in range(1, 7):
             if maxBid < Bid(contract, suit):
                 return Bid(contract, suit)
 
-    def getMaxBid(self, bids):
-        for _, bid in bids[::-1]:
-            if isinstance(bid, Bid):
-                return bid
+    # # returns the last
+    # def getMaxBid(self, bids):
+    #     for _, bid in bids[::-1]:
+    #         if isinstance(bid, Bid):
+    #             return bid
 
     def interpretPartnerFirstBid(self, bids):
         partnerFirstBid = self.getBid(self.partner, 1, bids)
@@ -263,14 +386,14 @@ class Bot():
     def getBidCategory(self):
         firstBid = self.firstBid(self.bids)[1]
         if firstBid.trump == 'NT':
-            return 'NT'
+            self.biddingCategory = 'NT'
         elif firstBid.contract == 2:
             if firstBid.trump == 'C':
-                return 'strong'
+                self.biddingCategory = 'strong'
             else:
-                return 'weak'
+                self.biddingCategory = 'weak'
         else:
-            return 'normal'
+            self.biddingCategory = 'normal'
 
     # returns an opening bid
     def getOpeningBid(self):
@@ -359,7 +482,7 @@ class Bot():
     def startPlay(self, hand):
         print('startPlay')
         self.hand = copy.deepcopy(hand)
-        self.knownCards = self.knownCards + self.hand
+        self.knownCards.update(self.hand)
 
     # simulate new Monte Carlo hands and returns chosen card     
     def playTurn(self, currentRound, nsTricks, ewTricks):
@@ -372,7 +495,7 @@ class Bot():
     # generates Monte Carlo that fits known information
     def simulate(self, currentRound, nsTricks, ewTricks):
         for _, card in currentRound:
-            self.knownCards.append(card)
+            self.knownCards.add(card)
         for _ in range(self.breadth):
             self.generateMonteCarlo(currentRound, nsTricks, ewTricks)
 
@@ -426,7 +549,9 @@ class Bot():
     # returns a deck with all the cards not in hand
     def makeUnkownDeck(self):
         deck = makeDeck()
+        print(f'known{self.knownCards}')
         for card in self.knownCards:
+            print(card)
             deck.remove(card)
         return deck
 

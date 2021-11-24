@@ -41,33 +41,34 @@ def initiateGameMode(app, players):
 def gameMode_mousePressed(app, event):
 
     if app.board.status == 'b': 
-
+         
         for row in app.board.bidOptions:
             for bid in row:
 
                 if bid.isPressed(event.x, event.y):
                     app.board.playBid(bid)
-                    while isinstance(app.game.players[app.board.activePosition], Bot):
-                        botBid(app)
-
+                    
                     if app.board.isBiddingEnd():
-                        app.board.endBidding()
+                        endBidding(app)
+        # bot section
+        while isinstance(app.game.players[app.board.activePosition], Bot) and not app.board.isBiddingEnd():
+            botBid(app)
 
-                        # assigns the bid and hand in the bot
-                        for botPosition in app.game.botPosition:
-                            app.game.players[botPosition].startPlay(app.board.hands[botPosition])
-                            app.game.players[botPosition].assignBid(app.board.bid)
-    
+
     if app.board.status == 'p': # when cardplay is occuring
         # loop in reverse order so cards the topmost card is activated when pressed
         for card in (app.board.hands[app.board.activePosition])[::-1]:
             if card.isPressed(event.x, event.y):
                 app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 print(f'currentRound: {app.board.currentRound}')
-                while isinstance(app.game.players[app.board.activePosition], Bot):
-                    print(app.game.players[app.board.activePosition], app.board.activePosition)
-                    botPlay(app) #FIXME make it have a delay - move to timerFired?
                 break # to prevent multiple overlapping cards from being pressed
+        
+        # bot section
+        while isinstance(app.game.players[app.board.activePosition], Bot):
+            print(app.game.players[app.board.activePosition], app.board.activePosition)
+            botPlay(app) #FIXME make it have a delay - move to timerFired?
+    
+    
     if app.board.endBoard:
         app.game.newBoard()
         app.board = app.game.board #TODO: maybe change all app.board to app.game.board
@@ -75,9 +76,19 @@ def gameMode_mousePressed(app, event):
     # adjusts the card position for played card
     app.board.locateHands(app.handLocations)
 
+def endBidding(app):
+    app.board.endBidding()   
+    # assigns the bid and hand in the bot
+    for botPosition in app.game.botPosition:
+        app.game.players[botPosition].startPlay(app.board.hands[botPosition])
+        app.game.players[botPosition].assignBid(app.board.bid)
+
 def botBid(app):
     chosenBid = app.game.players[app.board.activePosition].playBid(app.board.bids)
     app.board.playBid(chosenBid)
+    print(f'bids: {app.board.bids}')
+    if app.board.isBiddingEnd():
+        endBidding(app)
 
 # function for when the bot is playing
 def botPlay(app):

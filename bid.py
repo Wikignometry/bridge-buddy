@@ -33,7 +33,7 @@ class Bid(Button):
 
     # makes it hashable
     def __hash__(self):
-        return hash(self.contract + self.trump)
+        return hash(str(self))
 
     # makes < works
     def __lt__(self, other):

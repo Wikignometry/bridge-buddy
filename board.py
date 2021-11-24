@@ -87,30 +87,42 @@ class Board():
     def locateBids(self, location):
         xCenter, yCenter = location # refers to center of bidding grid
         # x, y is the top left of the bid grid
-        x = xCenter - (40 * 2) # 40 is the width of button + 10, 2 is the # of bids between center and end
-        y = yCenter - (40 * 2) - 15 # like above except 15 is the distance to the center of the bid
-        for row in self.bidOptions[:-1]: 
-            for bid in row:
+        x = xCenter + (40 * 2) # 40 is the width of button + 10, 2 is the # of bids between center and end
+        y = yCenter - (40 * 2) + 15 # like above except 15 is the distance to the center of the bid
+        for row in self.bidOptions: 
+            for bid in row[::-1]:
                 bid.location = (x, y)
-                x += 35
-            x = xCenter - (40 * 2)
+                x -= 35
+            x = xCenter + (40 * 2)
             y += 22
         self.bidOptions[-1][0].locate((xCenter, yCenter))
 
     # completes actions that need to happend when a bid is clicked
     def playBid(self, bid):
+        if not self.isValidBid(bid): # invalid bids are changed to passes
+            bid = SpecialBid('Pass')
         if isinstance(bid, Bid): # specialBids have superclass Button, not Bid
             self.clearLowerBids(bid)
         self.bids.append((self.activePosition, bid))
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
-    
+
+    # returns False is bid is not a bidOption
+    def isValidBid(self, bid):
+        for row in self.bidOptions:
+            for bidOption in row:
+                if bidOption == bid:
+                    return True
+        return False
+
+
     # completes the actions required to end bidding
     def endBidding(self):
         self.bid = SpecialBid('Pass') # sets in case it is a passout
-        for i in range(len(self.bids)):
-            if self.bids[-i][1] != SpecialBid('Pass'):
-                self.bid = self.bids[-i][1]
-                self.declarer = self.bids[-i][0]
+        for position, bid in self.bids[::-1]: 
+            if bid != SpecialBid('Pass'):
+                self.bid = bid
+                self.declarer = position
+                break
         if self.bid == SpecialBid('Pass'):
             print('endBoard')
             self.endBoard = True #TODO: check for this in Game class
@@ -400,5 +412,5 @@ def testBoardClass():
 ###################################################################
 #       Code to run
 
-# testBoardClass()
+testBoardClass()
 # runApp(width=1200, height=700)
