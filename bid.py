@@ -35,6 +35,14 @@ class Bid(Button):
     def __hash__(self):
         return hash(self.contract + self.trump)
 
+    # makes < works
+    def __lt__(self, other):
+        suitOrder = ['NT', 'S', 'H', 'D', 'C'] # order from greatest to least
+        if self.contract == other.contract:
+            return suitOrder.index(self.trump) > suitOrder.index(other.trump)
+        else:
+            return self.contract < other.contract
+
     # returns color based on trump suit 
     def getColor(self):
         bidColorDict = {'C': 'dark green', 'D': 'orange', 'H': 'red', 'S':'blue', 'NT':'grey'}
@@ -44,6 +52,21 @@ class Bid(Button):
     def getSymbol(self):
         suitSymbolDict = {'C': '♧', 'D': '♢', 'H': '♡', 'S': '♤', 'NT': 'NT'}
         return suitSymbolDict[self.trump]
+
+    # returns True if is game
+    def isGame(self):
+        return ((self.trump in 'HS' and self.contract >= 4) or
+                (self.trump in 'DC' and self.contract >= 5) or
+                (self.trump == 'NT' and self.contract >= 3))
+
+    # returns the game bid for each suit
+    def suitGame(self):
+        if self.trump in 'HS':
+            return Bid(4, self.trump)
+        if self.trump in 'DC':
+            return Bid(5, self.trump)
+        if self.trump == 'NT':
+            return Bid(3, self.trump)
 
     def draw(self, canvas):
         super().draw(canvas)
@@ -67,6 +90,11 @@ def testBidClass():
     assert(bid1.isPressed(112, 110) == True)
     assert(bid1.isPressed(95, 88) == True)
     assert(bid1.isPressed(170, 27) == False)
+    assert(Bid(4,'H')<Bid(4,'S'))
+    assert(Bid(5,'H')>Bid(4,'S'))
+    assert(Bid(5,'H').isGame())
+    assert(not Bid(3,'D').isGame())
+    assert( Bid(3,'NT').isGame())
     print('Passed!')
 
 # def appStarted(app):

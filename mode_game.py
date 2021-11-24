@@ -34,8 +34,8 @@ def initiateGameMode(app, players):
     app.board.locateHands(app.handLocations)
     for position in app.game.players:
         player = app.game.players[position]
-        # if type(player) == Bot: # should be specific to bots (not players if changed to child class later on)
-            # player.interpretInitialHand(app.board.hands[position])
+        if type(player) == Bot: # should be specific to bots (not players if changed to child class later on)
+            player.interpretInitialHand(app.board.hands[position])
 
 
 def gameMode_mousePressed(app, event):
@@ -47,6 +47,8 @@ def gameMode_mousePressed(app, event):
 
                 if bid.isPressed(event.x, event.y):
                     app.board.playBid(bid)
+                    while isinstance(app.game.players[app.board.activePosition], Bot):
+                        botBid(app)
 
                     if app.board.isBiddingEnd():
                         app.board.endBidding()
@@ -72,6 +74,10 @@ def gameMode_mousePressed(app, event):
         app.board.locateBids((app.width//2, app.height//2))
     # adjusts the card position for played card
     app.board.locateHands(app.handLocations)
+
+def botBid(app):
+    chosenBid = app.game.players[app.board.activePosition].playBid(app.board.bids)
+    app.board.playBid(chosenBid)
 
 # function for when the bot is playing
 def botPlay(app):

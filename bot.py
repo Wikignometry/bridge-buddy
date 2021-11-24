@@ -84,6 +84,8 @@ class Bot():
 
     def playBid(self, bids): # bids are list of tuple (position, bid)
         
+        self.bids = bids
+
         # returns the number of rounds that we have bidded
         self.round = self.getBiddingRound(bids)
         
@@ -94,9 +96,9 @@ class Bot():
             self.interpretPartnerBids(bids)
             return self.getRespondingBid(bids)
 
-        elif self.firstBid(bids)[0] == self.position: # firstBidPosition = self.position
-            self.interpretPartnerResponses(bids)
-            return self.getOpenersBid(bids)
+        # elif self.firstBid(bids)[0] == self.position: # firstBidPosition = self.position
+        #     self.interpretPartnerResponses(bids)
+        #     return self.getOpenersBid(bids)
         # if you don't know what to do, pass
         return SpecialBid('Pass')
         # else:
@@ -111,33 +113,54 @@ class Bot():
         return count
 
     # get the position's nth bid
-    def getBid(self, position, n):
-        for bidder, bid in self.bids:
+    def getBid(self, position, n, bids):
+        for bidder, bid in bids:
             if bidder == position:
                 n -= 1
                 if n == 0:
                     return bid
 
-
+    def getLastBid(self, bids, position='nsew'):
+        for bidder, bid in bids[::-1]:
+            if isinstance(bid, Bid) and bidder in position:
+                return bid
 
     def getRespondingBid(self, bids):
-        if self.isSlam():
-            return self.bidSlam()
-        elif self.isGame():
-            pass
+        print('foo')
 
+    
 
     def interpretPartnerBids(self, bids):
         if self.round == 0:
-            self.interpretPartnerFirstBid()
+            print('round 0')
+            self.interpretPartnerFirstBid(bids)
         elif self.round == 1:
-            self.interpretPartnerRebid()
+            self.interpretPartnerRebid(bids)
         else:
-            self.interpretEndRebids()
+            self.interpretEndRebids(bids)
 
-    def interpretPartnerRebid(self):
-        rebid = self.getBid(self.partner, 2) # partner's bid
-        response = self.getBid(self.partner, 1) # our bid
+    def interpretEndRebids(self, bids):
+        lastBid = self.getLastBid(bids, self.partner)
+        if self.conventionUsed == 'b':
+            cardCount = {
+                'C': 4, # this is either 0 or 4
+                'D': 1,
+                'H': 2,
+                'S': 3,
+                'NT': 0 # not a real bid, but in case someone fails
+            }
+            if lastBid.contract == 5:
+                self.partnerKingCount = cardCount[lastBid.trump]
+            elif lastBid.contract == 6:
+                self.partnerAce = cardCount[lastBid.trump]
+        elif Bid(lastBid.suitGame().contract - 1, lastBid.trump):
+            self.cueBid = True
+
+
+    def interpretPartnerRebid(self, bids):
+        opening = self.getBid(self.partner, 1, bids)
+        response = self.getBid(self.partner, 1, bids) # our bid
+        rebid = self.getBid(self.partner, 2, bids) # partner's bid
         biddingCategory = self.getBidCategory()
         if biddingCategory == 'NT':
             if self.conventionUsed == 's': # stayman convention
@@ -151,25 +174,66 @@ class Bot():
                     self.updateDistribution(self.partnerDistribution, 'H', 0, 4)     
             # jacoby convention has no semantic meaning
         elif biddingCategory == 'strong':
-            if self.getBid(self.position, 1).trump == 'D':
+            if self.getBid(self.position, 1, bids).trump == 'D':
                 if rebid.trump == 'NT':
                     self.partnerPoints = self.updatePoints(self.partnerPoints, 22, 24)
                 else:
                     self.forcing = Bid(3, rebid.trump) # refers to how high you need to go to before passing
         elif biddingCategory == 'weak':
-            if rebid.suit == response.suit:
+            if rebid.trump == response.trump:
                 self.partnerPoints = self.updatePoints(self.partnerPoints, 5, 8)
             else:
                 self.partnerPoints = self.updatePoints(self.partnerPoints, 9, 11)
         else: # biddingCategory == 'normal'
-            if rebid.suit == 'NT':
+            minimumRange = lambda self: self.updatePoints(self.partnerPoints, 12, 14)
+            mediumRange = lambda self: self.updatePoints(self.partnerPoints, 15, 17)
+            maximumRange = lambda self: self.updatePoints(self.partnerPoints, 18, 21)
+            suitOrder = ['NT', 'S', 'H', 'D', 'C']
+            # the minimum bid possible in suit bidded by opener
+            minimumBid = self.getMinimumBidInSuit(rebid.trump, bids[:-2])
+            if rebid.trump == 'NT':
                 if rebid.contract == response.contract:
-                    self.partnerPoints = self.updatePoints(self.partnerPoints, 12, 14)
+                    self.partnerPoints = minimumRange(self)
+                else:
+                    self.partnerPoints = maximumRange(self)
+            # rebid opening or responding suit
+            elif (rebid.trump == opening.trump or rebid.trump == response.trump):
+                if rebid == minimumBid:
+                   self.partnerPoints = minimumRange(self)
+                elif rebid == Bid(rebid.trump, minimumBid.contract + 1):
+                    self.partnerPoints = mediumRange(self)
+                else:
+                    self.partnerPoints = maximumRange(self)
+                self.updateDistribution(self.partnerDistribution, rebid.trump, 4, 13)
+            # rebid new suit
+            else:
+                if rebid == minimumBid: 
+                    # if newsuit was reverse
+                    if suitOrder.index(response.trump) < suitOrder.index(opening.trump):
+                        self.partnerPoints = self.updatePoints(self.partnerPoints, 15, 17)
+                    # no reversal
+                    else:
+                        self.partnerPoints = self.updatePoints(self.partnerPoints, 12, 17)
+                else:
+                    self.partnerPoints = self.updatePoints(self.partnerPoints, 18, 21)
+                self.updateDistribution(self.partnerDistribution, rebid.trump, 4, 13)
+            
+                
 
 
+    def getMinimumBidInSuit(self, suit, bids):
+        maxBid = self.getMaxBid(bids)
+        for contract in range(1, 7):
+            if maxBid < Bid(contract, suit):
+                return Bid(contract, suit)
 
-    def interpretPartnerFirstBid(self):
-        partnerFirstBid = self.getBid(self.partner, 1)
+    def getMaxBid(self, bids):
+        for _, bid in bids[::-1]:
+            if isinstance(bid, Bid):
+                return bid
+
+    def interpretPartnerFirstBid(self, bids):
+        partnerFirstBid = self.getBid(self.partner, 1, bids)
         # 'NT', 'strong', 'weak', and  'normal'
         biddingCategory = self.getBidCategory()
         if biddingCategory == 'NT':
@@ -188,20 +252,20 @@ class Bot():
         else: # biddingCategory == 'normal'
             self.partnerPoints = self.updatePoints(self.partnerPoints, 12, 20)
             if partnerFirstBid.trump in 'SH':
-                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 5, 'inf')
+                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 5, float('inf'))
             elif partnerFirstBid.trump == 'D':
-                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 4, 'inf')
-            else:
-                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 2, 'inf')
+                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 4, float('inf'))
+            else: # trump is clubs
+                self.updateDistribution(self.partnerDistribution, partnerFirstBid.trump, 2, float('inf'))
         
 
     # returns 'NT', 'strong', 'weak', and  'normal' based on firstBid
     def getBidCategory(self):
-        firstBid = self.firstBid
-        if firstBid.suit == 'NT':
+        firstBid = self.firstBid(self.bids)[1]
+        if firstBid.trump == 'NT':
             return 'NT'
-        elif firstBid.number == 2:
-            if firstBid.suit == 'C':
+        elif firstBid.contract == 2:
+            if firstBid.trump == 'C':
                 return 'strong'
             else:
                 return 'weak'
@@ -273,10 +337,10 @@ class Bot():
 
     # returns the position of the first bidder 
     # (returns None if no bids, but shouldn't occur here)
-    # def firstBid(self, bids):
-    #     for position, bid in bids:
-    #         if isinstance(bid, Bid):
-    #             return position, bid
+    def firstBid(self, bids):
+        for position, bid in bids:
+            if isinstance(bid, Bid):
+                return position, bid
         
     # getting points via the standard A=4, K=3, Q=2, J=1 evaluation system
     def getHandPoints(self):
