@@ -89,13 +89,13 @@ def botBid(app):
     print(f'bids: {app.board.bids}')
     if app.board.isBiddingEnd():
         endBidding(app)
+    
 
 # function for when the bot is playing
 def botPlay(app):
     # app.game.players[app.board.activePosition].makeNode(app.board.hands, 4, app.board.activePosition, app.board.currentRound, 0, 0, app.board.bid)
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
-
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
 
 # repositions items when size of screen changes

@@ -1,4 +1,10 @@
 # this files contains helper functions
+###################################################################
+#       Imported Modules
+import time
+###################################################################
+
+
 
 def create_roundedRectangles(canvas, x1, y1, x2, y2, r=10, fill='white', outline='black'):
     points = [
@@ -51,3 +57,10 @@ def repr2dList(L):
 
 def print2dList(L):
     print(repr2dList(L))
+
+
+def timer(duration):
+    startTime = time.time()
+    while (time.time() - startTime) < duration:
+        continue
+    return

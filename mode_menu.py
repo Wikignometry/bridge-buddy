@@ -42,10 +42,10 @@ def appStarted(app):
     app.menuPlayersDict = getMenuPlayersDict() # dict where key=button name and value=playersDict
 
 def menuMode_mousePressed(app, event):
-    
     for button in app.buttons:
         if button.isPressed(event.x, event.y): 
             button.action(app, app.menuPlayersDict[button.label])
+
 
 def menuMode_redrawAll(app, canvas):
     for button in app.buttons:
