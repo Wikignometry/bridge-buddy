@@ -36,7 +36,7 @@ class Bot():
         self.hand = hand
         self.points = self.getHandPoints() # points in our hand
         self.partner = self.getPartner()
-        self.getDistribution() # assigns distribution to self.distribution
+        self.distribution = self.getDistribution(self.hand) 
         self.partnerDistribution = self.initialOtherDistribution() 
         self.partnerPoints = (0, 37) # min max inclusive of potential partner points range
         # partnerDistribution is a dict where key=suit and value=tuple(min, max)
@@ -70,10 +70,11 @@ class Bot():
         return pair[0]
 
     # returns a dict of the distribution of cards
-    def getDistribution(self):
-        self.distribution = {'S': 0, 'H': 0, 'D': 0, 'C': 0}
-        for card in self.hand:
-            self.distribution[card.suit] += 1
+    def getDistribution(self, hand):
+        distribution = {'S': 0, 'H': 0, 'D': 0, 'C': 0}
+        for card in hand:
+            distribution[card.suit] += 1
+        return distribution
 
     # creates a dict of min and max distribution (0, 13)
     def initialOtherDistribution(self):
@@ -98,8 +99,8 @@ class Bot():
             return self.getRespondingBid(bids)
 
         elif self.firstBid(bids)[0] == self.position: # firstBidPosition = self.position
-            self.interpretPartnerResponse(bids)
-            return self.getOpenersBid(bids)
+            self.interpretPartnerResponse()
+            return self.getOpenersBid()
         # if you don't know what to do, pass
         return SpecialBid('Pass')
         # else:
@@ -122,8 +123,10 @@ class Bot():
         
         opening = self.getBid(self.partner, 1, self.bids)
         response = self.getBid(self.partner, 1, self.bids)
-        
-        if self.biddingCategory == 'NT':
+        if response == SpecialBid('Pass'):
+            return SpecialBid('Pass')
+
+        elif self.biddingCategory == 'NT':
             if response.trump == 'C': # stayman
                 if self.distribution['H'] >= 4:
                     return self.getMinimumBidInSuit('H')
@@ -553,10 +556,13 @@ class Bot():
         self.hand.remove(cardPicked)
         return cardPicked
 
+    # updates set of known cards
+    def updateKnownCards(self, card):
+        self.knownCards.add(card)
+
+
     # generates Monte Carlo that fits known information
     def simulate(self, currentRound, nsTricks, ewTricks):
-        for _, card in currentRound:
-            self.knownCards.add(card)
         for _ in range(self.breadth):
             self.generateMonteCarlo(currentRound, nsTricks, ewTricks)
 
@@ -593,7 +599,8 @@ class Bot():
         if currentRound != []:
             leader = currentRound[0][0]
         else: leader = self.position
-            # in case there is an uneven number of cards
+        # in case there is an uneven number of cards
+        # orders so the cards are dealth in the right order
         dealOrder = 'nesw'['nesw'.index(leader):] + 'nesw'[:'nesw'.index(leader)]
         for direction in dealOrder:
             if direction != self.position:
@@ -601,11 +608,19 @@ class Bot():
                 for _ in range(cardsPerPlayer):
                     if otherCards == []: break
                     dealtCard = random.choice(otherCards) 
-                    otherCards.remove(dealtCard) # prevents the card from being dealt twice
+                    distribution = self.getDistribution(montyHands[direction])
                     montyHands[direction].append(dealtCard)
+                    
+                    # so the partner's distribution conforms to the information given
+                    while (direction == self.partner and
+                        distribution[dealtCard.suit] >= self.partnerDistribution[dealtCard.suit][1]):
+                        montyHands[direction].remove(dealtCard)
+                        dealtCard = random.choice(otherCards)
+                        montyHands[direction].append(dealtCard)
+
+                    otherCards.remove(dealtCard) # prevents the card from being dealt twice
         self.possibleNodes.append(Node(montyHands, self.depth, self.position, 
-                                        currentRound, nsTricks, ewTricks, self.bid 
-        ))
+                                        currentRound, nsTricks, ewTricks, self.bid))
 
     # returns a deck with all the cards not in hand
     def makeUnkownDeck(self):

@@ -27,11 +27,9 @@ def getMenuPlayersDict():
         'Teaching\nMode': teaching
     }
 
-
-# def initiateMenu(app):
-def appStarted(app):
+def initiateMenu(app):
     app.mode = 'menuMode'
-    app.buttons = [
+    app.menuButtons = [
         Button((app.width//4, app.height//5), location=(app.width//3, app.height//2),
                  label = 'Play Solo', action=initiateGameMode, 
                  fill='deep sky blue', fontSize = 30, textFill='black', r=40),
@@ -42,15 +40,15 @@ def appStarted(app):
     app.menuPlayersDict = getMenuPlayersDict() # dict where key=button name and value=playersDict
 
 def menuMode_mousePressed(app, event):
-    for button in app.buttons:
+    for button in app.menuButtons:
         if button.isPressed(event.x, event.y): 
             button.action(app, app.menuPlayersDict[button.label])
 
 
 def menuMode_redrawAll(app, canvas):
-    for button in app.buttons:
+    for button in app.menuButtons:
         button.draw(canvas)
 
 
-runApp(width=1200, height=700)
+
 

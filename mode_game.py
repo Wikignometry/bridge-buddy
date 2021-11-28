@@ -13,7 +13,7 @@ from bot import *
 # def appStarted(app):
 def initiateGameMode(app, players):
     app.mode = 'gameMode'
-    app.game = Game(players)
+    app.game = Game(app, players)
         # {'n': Player('Fa'), 
         #             's': Bot('s', 4, 9), 
         #             'e': Player('Fa'), 
@@ -36,6 +36,7 @@ def initiateGameMode(app, players):
         player = app.game.players[position]
         if type(player) == Bot: # should be specific to bots (not players if changed to child class later on)
             player.interpretInitialHand(app.board.hands[position])
+    
 
 
 def gameMode_mousePressed(app, event):
@@ -61,16 +62,21 @@ def gameMode_mousePressed(app, event):
             if card.isPressed(event.x, event.y):
                 app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 print(f'currentRound: {app.board.currentRound}')
+                
+                # updates known cards for the bot players
+                for botPosition in app.game.botPosition:
+                    app.game.players[botPosition].updateKnownCards(card)
+                
+                
                 break # to prevent multiple overlapping cards from being pressed
         
         # bot section
         while isinstance(app.game.players[app.board.activePosition], Bot):
-            print(app.game.players[app.board.activePosition], app.board.activePosition)
             botPlay(app) #FIXME make it have a delay - move to timerFired?
     
     
     if app.board.endBoard:
-        app.game.newBoard()
+        app.game.newBoard(app)
         app.board = app.game.board #TODO: maybe change all app.board to app.game.board
         app.board.locateBids((app.width//2, app.height//2))
     # adjusts the card position for played card
@@ -101,6 +107,10 @@ def botPlay(app):
 # repositions items when size of screen changes
 def gameMode_sizeChanged(app):
     app.board.locateBids((app.width//2, app.height//2))
+    app.handLocations = {'n': (app.width//2, 50),
+                            'e': (app.width-250, app.height//2), 
+                            's': (app.width//2, app.height-50), 
+                            'w': (250, app.height//2)}
     app.board.locateHands(app.handLocations)
 
 def gameMode_timerFired(app):

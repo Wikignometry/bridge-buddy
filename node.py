@@ -38,7 +38,7 @@ class Node(Board):
         self.depth = depth
         self.children = self.getChildren()
 
-    #FIXME: does the alpha beta pruning do anything if we don't put it here?
+
     # returns a list child Nodes from this node
     def getChildren(self):
         children = dict() # key=card, value=Node

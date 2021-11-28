@@ -9,7 +9,7 @@ from special_bid import *
 
 class Board():
 
-    def __init__(self, boardNumber):
+    def __init__(self, boardNumber, app):
         
         # int – index (starts at 0) because it's easier to use
         self.index = boardNumber - 1
@@ -25,6 +25,9 @@ class Board():
         self.status = 'b' # 'b' (bidding) or 'p' (playing)
         
         self.endBoard = False # turns to true when board ends
+
+        self.cardSkin = 'full' #light or full
+        self.loadImages(app)
 
 
 #TODO: implement bidding system
@@ -48,6 +51,7 @@ class Board():
         self.history = [] # list of tuples of each round
 
         self.endBoard = False # turns to True when the board is over (animation checks for this)
+
 
     # returns str of vulnerable pair(s)
     def getVulnerability(self):
@@ -142,11 +146,14 @@ class Board():
 
     # removes all the bids in bidOptions lower than the bid given
     def clearLowerBids(self, bid):
+        clearedRows = []
         while bid not in self.bidOptions[0]: # clears the rows
             self.bidOptions.pop(0)
+            clearedRows.append([])
         while bid != self.bidOptions[0][0]: # clears the columns
             self.bidOptions[0].pop(0)
         self.bidOptions[0].pop(0) # to remove the bid itself
+        self.bidOptions = clearedRows + self.bidOptions
 
     # draws all the available bids 
     def drawPotentialBids(self, canvas):
@@ -163,7 +170,7 @@ class Board():
         # moves active position in a clockwise direction
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
         if len(self.currentRound) >= 4:
-                    self.endRound()
+            self.endRound()
         
 
     # location is a tuple (x, y) of the center of the hand
@@ -205,16 +212,38 @@ class Board():
             else: 
                 return bestOfTheRest
 
+    # loads the card images
+    def loadImages(self, app):
+        fullImage = app.loadImage('media/cards.png')
+        self.cardImages = dict()
+        for row in range(5):
+            suit = 'CDHSe'[row] #clubs, diamonds, heart, spades, else
+            for col in range(13):
+                card = fullImage.crop((col*157, row*229, (col+1)*157+3, (row+1)*228+3))
+                card = app.scaleImage(card, 2/5)
+                # sets the image to a dictionary where key=Card
+                if suit != 'e':
+                    self.cardImages[Card((col+12)%13+2, suit)] = card
+        print(self.cardImages)
+        
+
     # draw each card in the hand
     def drawHands(self, canvas):
         for position in 'nsew':
             for card in self.hands[position]:
-                card.draw(canvas)
+                if self.cardSkin == 'light':
+                    card.draw(canvas)
+                elif self.cardSkin == 'full':
+                    canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
+                
 
     # draw played cards in the current round
     def drawPlayedCards(self, canvas):
         for _ , card in self.currentRound: 
-            card.draw(canvas)
+            if self.cardSkin == 'light':
+                    card.draw(canvas)
+            elif self.cardSkin == 'French':
+                canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
 
 #TODO: finish this
     # # draws the bidding history 
@@ -327,6 +356,7 @@ class Board():
                               rightEdge - width//2, bottomEdge - width//2,
                               fill=nsVulColor, outline='black')
 
+
 ###################################################################
 #           Helper Function
 
@@ -409,8 +439,21 @@ def testBoardClass():
 #     if app.board1.status == 'b':
 #         app.board1.drawPotentialBids(canvas)
 
+# test cropping the cards
+# def appStarted(app):
+#     app.board = Board(1)
+#     app.board.loadImages(app)
+#     app.handLocations = {'n': (app.width//2, 50),
+#                             'e': (app.width-250, app.height//2), 
+#                             's': (app.width//2, app.height-50), 
+#                             'w': (250, app.height//2)}
+#     app.board.locateHands(app.handLocations)
+
+# def redrawAll(app, canvas):
+#     app.board.drawHands(canvas)
+
 ###################################################################
 #       Code to run
 
-testBoardClass()
+# testBoardClass()
 # runApp(width=1200, height=700)

@@ -8,9 +8,9 @@ from bot import *
 
 class Game():
 
-    def __init__(self, playerDict):
+    def __init__(self, app, playerDict):
         self.boardNumber = 1
-        self.board = Board(self.boardNumber)
+        self.board = Board(self.boardNumber, app)
         self.ewPoints = 0
         self.nsPoints = 0
         self.players = playerDict # dict where key=position, value=Player
@@ -18,10 +18,10 @@ class Game():
         self.getBotPosition() # self.botPosition as a str
 
     # creates new board, stores old board, and increases board number
-    def newBoard(self):
+    def newBoard(self, app):
         self.history.append(self.board)
         self.boardNumber += 1
-        self.board = Board(self.boardNumber)
+        self.board = Board(self.boardNumber, app)
 
     # assigns a str of botPositions to self.botPosition
     def getBotPosition(self):
