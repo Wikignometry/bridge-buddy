@@ -22,6 +22,12 @@ class Game():
         self.history.append(self.board)
         self.boardNumber += 1
         self.board = Board(self.boardNumber, app)
+        # keep settings consitent across board
+        self.board.cardSkin = self.history[-1].cardSkin
+        
+
+
+
 
     # assigns a str of botPositions to self.botPosition
     def getBotPosition(self):

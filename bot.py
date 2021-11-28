@@ -22,8 +22,10 @@ class Bot():
         self.breadth = breadth # refers to the number of Monte Carlo simulations to run
 
         self.knownCards = set() # set of cards we've seen (and therefore cannot be in opponent's hands)
+        self.cheater = False #boolean to indicate whether the bot can look at other players cards
 
-
+        self.dummy = None # turns into a position once dummy is finalized
+        self.dummyHand = None # turns into a list of Cards
 
 ###################################################################
 # bidding
@@ -557,9 +559,16 @@ class Bot():
         return cardPicked
 
     # updates set of known cards
-    def updateKnownCards(self, card):
+    def updateKnownCards(self, position, card):
         self.knownCards.add(card)
+        if position == self.dummy:
+            self.dummyHand.remove(card)
 
+    # gives the bot the information about the dummy
+    def assignDummyHand(self, hand, dealer):
+        self.dummy = self.getPartner(dealer)
+        self.dummyHand = hand
+        self.knownCards.append(hand)
 
     # generates Monte Carlo that fits known information
     def simulate(self, currentRound, nsTricks, ewTricks):
@@ -569,41 +578,41 @@ class Bot():
     # aggregates the cards from each node to get the modal card choice
     def getCard(self):
         # gets a dict of card mapped to number of times picked
-        print(self.hand)
+        print(f'self.hand: {self.hand}')
         cardCount = {'base': 0}
-        print(len(self.possibleNodes[0].hands[self.position]))
+        print(f'self.hand length in Node: {len(self.possibleNodes[0].hands[self.position])}')
         for node in self.possibleNodes:
             node.calculateMinimax(self.position in 'ns', baseHeuristic)
             proposedPlay = node.getPlay()
             value = cardCount.get(proposedPlay, 0)
             cardCount[proposedPlay] = value + 1
-        print(cardCount)
 
         # get the modal card picked
         cardPick = 'base'
         for card in cardCount: #TODO: this feels so ugly
             if cardCount[card] > cardCount[cardPick]:
                 cardPick = card
-        print(cardPick)
+        print(f'card pick: {cardPick}')
 
         return cardPick
-            
-   
                
     # appends a new MonteCarlo-ed node to possibleNodes
     def generateMonteCarlo(self, currentRound, nsTricks, ewTricks):
         montyHands = dict()
         montyHands[self.position] = self.hand
+        montyHands[self.dummy] = self.dummyHand
         otherCards = self.makeUnkownDeck() # deck with known cards removed
         cardsPerPlayer = len(otherCards)//4 + 1
         if currentRound != []:
             leader = currentRound[0][0]
         else: leader = self.position
+
         # in case there is an uneven number of cards
         # orders so the cards are dealth in the right order
         dealOrder = 'nesw'['nesw'.index(leader):] + 'nesw'[:'nesw'.index(leader)]
+        
         for direction in dealOrder:
-            if direction != self.position:
+            if direction != self.position and direction != self.dummy:
                 montyHands[direction] = []
                 for _ in range(cardsPerPlayer):
                     if otherCards == []: break

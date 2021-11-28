@@ -8,6 +8,7 @@ from node import *
 from game import *
 from bot import *
 # player imported via bot
+
 ###################################################################
 
 # def appStarted(app):
@@ -32,11 +33,9 @@ def initiateGameMode(app, players):
     }
     app.board.locateBids((app.width//2, app.height//2))
     app.board.locateHands(app.handLocations)
-    for position in app.game.players:
+    for position in app.game.botPosition:
         player = app.game.players[position]
-        if type(player) == Bot: # should be specific to bots (not players if changed to child class later on)
-            player.interpretInitialHand(app.board.hands[position])
-    
+        player.interpretInitialHand(app.board.hands[position])
 
 
 def gameMode_mousePressed(app, event):
@@ -65,7 +64,7 @@ def gameMode_mousePressed(app, event):
                 
                 # updates known cards for the bot players
                 for botPosition in app.game.botPosition:
-                    app.game.players[botPosition].updateKnownCards(card)
+                    app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
                 
                 
                 break # to prevent multiple overlapping cards from being pressed
@@ -125,7 +124,7 @@ def gameMode_redrawAll(app, canvas):
         app.board.drawPotentialBids(canvas)
     app.board.drawStatistics(app, canvas)
     app.game.drawUsernames(canvas, app.handLocations, app.board.activePosition)
-    # app.board.drawBidHistory(app, canvas)
+    app.board.drawBidHistory(app, canvas)
 
 
 

@@ -17,7 +17,7 @@ class Bid(Button):
         self.color = self.getColor() # color names
 
         super().__init__(dimension=(30, 27), location=(100, 100), 
-                        fill=self.color, outline='black',
+                        fill=self.color, outline='white',
                         label=f'{self.contract}{self.getSymbol()}',
                         textFill='white') 
 
@@ -31,7 +31,7 @@ class Bid(Button):
     def __repr__(self):
         return str(self.contract) + self.trump
 
-    # makes it hashable
+    # makes Bid hashable based on contract and trump
     def __hash__(self):
         return hash(str(self))
 

@@ -2,7 +2,7 @@
 #       Imported Modules
 
 import math
-
+import pygame
 ###################################################################
 #       Imported Files
 
@@ -15,6 +15,8 @@ from mode_menu import *
 def appStarted(app):
     initiateMenu(app)
     app.mode = 'menuMode'
+    pygame.mixer.init()
+
 
 
 runApp(width=1200, height=700)

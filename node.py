@@ -49,7 +49,7 @@ class Node(Board):
             
             # in normal circumstance where round has not ended
             if len(self.currentRound) < 4:
-                if not self.islegalPlay(card): continue
+                if not self.isLegalPlay(card): continue
                 childActivePosition, childCurrentRound, childTricks = self.continueRound(card)
             # when four cards have been played in the round
             else: 
@@ -61,12 +61,6 @@ class Node(Board):
                                         childNSTricks, childEWTricks, self.bid
                                         )
         return children
-
-    # returns True if play is legal
-    def islegalPlay(self, card):
-        if self.lead == None: return True
-        return (self.lead.suit == card.suit or 
-            not self.lead.containsSuit(self.hands[self.activePosition]))
 
     # returns the child's activePosition and currentRound if the round continues
     def continueRound(self, card):

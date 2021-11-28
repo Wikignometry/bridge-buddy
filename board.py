@@ -84,7 +84,7 @@ class Board():
             for trump in ['C', 'D', 'H', 'S', 'NT']:
                 bidOptionsRow.append(Bid(contract, trump))
             bidOptions.append(bidOptionsRow)
-        bidOptions.append([SpecialBid('Pass')])
+        bidOptions.append([SpecialBid('Pass'), SpecialBid('X'), SpecialBid('XX')])
         return bidOptions
 
     # assigns the location of the bids based on a center of the grid
@@ -99,7 +99,8 @@ class Board():
                 x -= 35
             x = xCenter + (40 * 2)
             y += 22
-        self.bidOptions[-1][0].locate((xCenter, yCenter))
+        for bid in self.bidOptions[-1]:
+            bid.locate((xCenter, yCenter))
 
     # completes actions that need to happend when a bid is clicked
     def playBid(self, bid):
@@ -107,7 +108,7 @@ class Board():
             bid = SpecialBid('Pass')
         if isinstance(bid, Bid): # specialBids have superclass Button, not Bid
             self.clearLowerBids(bid)
-        self.bids.append((self.activePosition, bid))
+        self.bids.append((self.activePosition, copy.deepcopy(bid))) # to prevent aliasing mania
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
 
     # returns False is bid is not a bidOption
@@ -164,14 +165,32 @@ class Board():
 
     # actions to perform when a card is pressed
     def playCard(self, card, targetLocation):
+
+        # first card played is the lead
+        if self.currentRound == []:
+            self.lead = card
+
+        # ignores play if it isn't legal
+        if not self.isLegalPlay(card): return
+
         self.hands[self.activePosition].remove(card)
         self.currentRound.append((self.activePosition, card))
         card.targetLocation = targetLocation
+
         # moves active position in a clockwise direction
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
+        
+        # check for a round ending
         if len(self.currentRound) >= 4:
             self.endRound()
         
+    # returns True if play is legal
+    def isLegalPlay(self, card):
+        
+        if self.lead == None: return True
+        return (self.lead.suit == card.suit or 
+            not self.lead.containsSuit(self.hands[self.activePosition]))
+
 
     # location is a tuple (x, y) of the center of the hand
     def locateHand(self, hand, location):
@@ -190,7 +209,6 @@ class Board():
 
     # performs all the neccesary actions for a round end
     def endRound(self):
-        self.lead = self.currentRound[0][1] #TODO: this might have to move somewhere more efficient
         winner, _ = self.getWinner(self.currentRound) # returns winning position and winning card (because recursion)
         self.history.append(tuple(self.currentRound)) # make into a tuple to ensure it doesn't change
         self.currentRound = []
@@ -198,6 +216,8 @@ class Board():
         if winner in 'ew':
             self.ewTricks += 1
         else: self.nsTricks += 1
+
+        self.lead = None # clears self.lead so isLegalPlay works
 
     # takes in list of tuple (position, card) 
     # returns the winnerPosition, winningCard in a round recursively 
@@ -224,7 +244,6 @@ class Board():
                 # sets the image to a dictionary where key=Card
                 if suit != 'e':
                     self.cardImages[Card((col+12)%13+2, suit)] = card
-        print(self.cardImages)
         
 
     # draw each card in the hand
@@ -242,25 +261,47 @@ class Board():
         for _ , card in self.currentRound: 
             if self.cardSkin == 'light':
                     card.draw(canvas)
-            elif self.cardSkin == 'French':
+            elif self.cardSkin == 'full':
                 canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
 
 #TODO: finish this
-    # # draws the bidding history 
-    # def drawBidHistory(self, app, canvas):
-    #     width = app.width//4
-    #     height = app.height//3
-    #     x1, y1 = (app.width, app.height) # refers to bottom right of the screen
-    #     canvas.create_rectangle(x1 - width, y1 - height,
-    #                             x1, y1,
-    #                             fill = 'grey')
-    #     self.drawBidColumns(canvas)
+    # draws the bidding history 
+    def drawBidHistory(self, app, canvas):
+        width = app.width//4
+        height = app.height//3
+        x1, y1 = (app.width, app.height) # refers to bottom right of the screen
+        create_roundedRectangles(canvas, 
+                                x1 - width, y1 - height,
+                                x1, y1,
+                                fill = 'light grey')
+        xCenter, yCenter = x1 - width//2, y1 - height//2
+        self.drawBidColumns(canvas, xCenter, yCenter, width, height)
 
-#TODO
-    # def drawBidColumns(canvas):
+    # draws the columns for the bids to be in and the bids themselves
+    def drawBidColumns(self, canvas, xCenter, yCenter, width, height):
+        colWidth = width//6
+        colHeight = 2*height//3
+        margin = 10
+        # x0, y0 is the top right of the area with bid columns
+        x0, y0 = xCenter - colWidth*2 - margin*1.5, yCenter - colHeight//2 + height//10
+        for i in range(4):
+            xCol, yCol = x0+i*(colWidth+margin), y0 # top left of each col
+            canvas.create_text(xCol + colWidth//2, yCol - 10, 
+                                anchor='s', text='NESW'[i],
+                                font=('Calbri', 16, 'bold'))
+            create_roundedRectangles(canvas, 
+                                    xCol, yCol,
+                                    xCol+colWidth, yCol+colHeight,
+                                    fill='dark grey')
+            for ii in range(len(self.bids)):
+                position, bid = self.bids[ii] 
+                if position == 'nesw'[i]: # if position is the column we are drawing
+                    bid.location = (xCol + colWidth//2, yCol + (ii//4)*22 + bid.height//2 + margin) 
+                    # 22 based on the arbitrary number used for the bidding grid
+                    bid.draw(canvas)
 
 
-    # draw statistics #TODO!!!
+    # draw statistics 
     def drawStatistics(self, app, canvas):
         width = app.width//4
         height = app.height//5
