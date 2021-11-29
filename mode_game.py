@@ -14,6 +14,10 @@ from bot import *
 # def appStarted(app):
 def initiateGameMode(app, players):
     app.mode = 'gameMode'
+
+    app.timeElapsed = 0 
+    app.delay = 500
+
     if app.game == None or players != app.game.players:
         app.game = Game(app, players)
     app.board = app.game.board
@@ -60,9 +64,8 @@ def gameMode_mousePressed(app, event):
                     # checks for end of bidding
                     if app.board.isBiddingEnd():
                         endBidding(app)
-        # bot section
-        while isinstance(app.game.players[app.board.activePosition], Bot) and not app.board.isBiddingEnd():
-            botBid(app)
+
+                    app.timeElapsed = 0 # so timer starts after last play
 
     ##################### playing #####################
     if app.board.status == 'p': # when cardplay is occuring
@@ -81,11 +84,11 @@ def gameMode_mousePressed(app, event):
                 for botPosition in app.game.botPosition:
                     app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
                 
+                app.timeElapsed = 0 # so timer starts after last play
+
                 break # to prevent multiple overlapping cards from being pressed
         
-        # bot section
-        while isinstance(app.game.players[app.board.activePosition], Bot):
-            botPlay(app) #FIXME make it have a delay - move to timerFired?
+        
     
     ##################### ending #####################
     if app.board.endBoard:
@@ -133,8 +136,20 @@ def gameMode_sizeChanged(app):
     app.board.locateHands(app.handLocations)
 
 def gameMode_timerFired(app):
+    
+    app.timeElapsed += app.timerDelay
+
     for _ , card in app.board.currentRound:
         card.move(0.3) #TODO: fix magic number?
+    
+    # bot section
+    if isinstance(app.game.players[app.board.activePosition], Bot) and app.timeElapsed >= app.delay:
+        app.timeElapsed = 0
+        if app.board.status == 'p':
+            botPlay(app) 
+        else:
+            botBid(app)
+
 
 def gameMode_redrawAll(app, canvas):
     canvas.create_rectangle(0, 0, app.width, app.height, fill='forest green') 

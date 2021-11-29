@@ -36,9 +36,10 @@ def splashMode_keyPressed(app, event):
     initiateMenu(app)
 
 def splashMode_mouseMoved(app, event):
-    for card in app.displayCard:
+    for card in app.displayCard[::-1]:
         if card.isPressed(event.x, event.y): # not pressed, only hovered, but same idea
             if card != app.hoveredCard:
+                locateDisplayCards(app)
                 app.hoveredCard = card
                 app.hoveredCard.targetLocation = (app.hoveredCard.location[0], app.hoveredCard.location[1] - 20)
                 return
