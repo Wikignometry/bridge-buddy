@@ -11,15 +11,23 @@ import pygame
 # special_bid, helper button, node, game, bot, player imported via mode_splash
 from sound import *
 from mode_splash import *
+from specific_buttons import * 
 ###################################################################
 
 def appStarted(app):
+
+    # splashscreen
     initiateSplash(app)
+
+    # sound
     pygame.mixer.init()
     app.sounds = {
         'button': Sound('media/button_click.wav'),
         'card': Sound('media/play_card.wav')
     } # dict of key=sound label and value=Sound
+
+    # buttons
+    app.buttons = getTopLevelButtons(app)
 
         
 

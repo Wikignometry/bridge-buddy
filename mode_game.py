@@ -15,10 +15,6 @@ from bot import *
 def initiateGameMode(app, players):
     app.mode = 'gameMode'
     app.game = Game(app, players)
-        # {'n': Player('Fa'), 
-        #             's': Bot('s', 4, 9), 
-        #             'e': Player('Fa'), 
-        #             'w': Player('Fa')})
     app.board = app.game.board
     print(app.game.botPosition)
     app.handLocations = {'n': (app.width//2, 50),
@@ -39,7 +35,11 @@ def initiateGameMode(app, players):
 
 
 def gameMode_mousePressed(app, event):
-
+    ##################### buttons #####################
+    for button in app.buttons:
+        if button.isPressed(event.x, event.y):
+            button.action(app, button)
+    ##################### bidding #####################
     if app.board.status == 'b': 
          
         for row in app.board.bidOptions:
@@ -56,7 +56,7 @@ def gameMode_mousePressed(app, event):
         while isinstance(app.game.players[app.board.activePosition], Bot) and not app.board.isBiddingEnd():
             botBid(app)
 
-
+    ##################### playing #####################
     if app.board.status == 'p': # when cardplay is occuring
         # loop in reverse order so cards the topmost card is activated when pressed
         for card in (app.board.hands[app.board.activePosition])[::-1]:
@@ -76,13 +76,17 @@ def gameMode_mousePressed(app, event):
         while isinstance(app.game.players[app.board.activePosition], Bot):
             botPlay(app) #FIXME make it have a delay - move to timerFired?
     
-    
+    ##################### ending #####################
     if app.board.endBoard:
         app.game.newBoard(app)
         app.board = app.game.board #TODO: maybe change all app.board to app.game.board
         app.board.locateBids((app.width//2, app.height//2))
+    
+    ##################### miscellaneous #####################
     # adjusts the card position for played card
     app.board.locateHands(app.handLocations)
+
+
 
 def endBidding(app):
     app.board.endBidding()   
@@ -130,6 +134,8 @@ def gameMode_redrawAll(app, canvas):
     app.board.drawStatistics(app, canvas)
     app.game.drawUsernames(canvas, app.handLocations, app.board.activePosition)
     app.board.drawBidHistory(app, canvas)
+    for button in app.buttons:
+        button.draw(canvas)
 
 
 

@@ -1,7 +1,50 @@
 # file containing the buttons in the settings
+###################################################################
+#       Imported Files
 from button import *
+from mode_menu import *
+# 112_graphs, random, card, bid, heuristic, copy, mode_game
+# special_bid, helper button, node, game, bot, player imported via mode_menu
+###################################################################
 
-def getSettingsButtons():
+
+
+
+# returns the top level buttons already located
+def getTopLevelButtons(app):
+    margin = 10
+    width, height = 100, 40
+    return [
+        Button(
+            (width, height), # dimensions
+            action=initiateMenu,
+            fill='light grey',
+            label='menu', location=(margin + width//2, margin + height//2)
+            ),
+        Button(
+            (width, height), # dimensions
+            action=toggleSetting,
+            fill='light grey',
+            label='settings', location=(app.width-margin - width//2, margin + height//2)
+            )
+    ]
+
+# adds or remove setting Buttons
+def toggleSetting(app, _):
+    settingButtons = getSettingButtons()
+    locateSettingButtons
+    if settingButtons in app.buttons:
+        app.buttons.append(settingButtons)
+    else:
+        removeButtons(app, settingButtons)
+
+def removeButtons(app, buttonList):
+    for button in app.buttons:
+        if button in buttonList:
+            app.buttons.remove(button)
+
+
+def getSettingButtons():
     settingButtons = []
     settingButtonsDict = { # each function takes in app and button
         'card skin: full': changeCardSkin,
@@ -20,7 +63,7 @@ def getSettingsButtons():
     return settingButtons
 
 # takes in x, y of the center of the lower edge of the settings
-def locateSettingsButtons(app, x, y):
+def locateSettingButtons(app, x, y):
     margin = 10
     for i in range(len(app.settingButtons)):
         button = app.settingButtons[i]

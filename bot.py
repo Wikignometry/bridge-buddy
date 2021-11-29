@@ -551,7 +551,12 @@ class Bot():
         self.knownCards.update(self.hand)
 
     # simulate new Monte Carlo hands and returns chosen card     
-    def playTurn(self, currentRound, nsTricks, ewTricks):
+    def playTurn(self, currentRound, nsTricks, ewTricks, hands):
+        # if bot is in cheating mode
+        if self.cheater:
+            self.node = Node(hands, self.depth, self.position, currentRound, nsTricks, ewTricks, self.bid)
+            self.node.calculateMinimax(True, baseHeuristic)
+            return self.node.getPlay() 
         self.possibleNodes = []
         self.simulate(currentRound, nsTricks, ewTricks)
         cardPicked = self.getCard()

@@ -27,7 +27,7 @@ def getMenuPlayersDict():
         'Teaching\nMode': teaching
     }
 
-def initiateMenu(app):
+def initiateMenu(app, *args): # args so polymorphism works
     app.mode = 'menuMode'
     app.menuButtons = [
         Button((app.width//4, app.height//5), location=(app.width//3, app.height//2),
@@ -39,7 +39,15 @@ def initiateMenu(app):
     ]
     app.menuPlayersDict = getMenuPlayersDict() # dict where key=button name and value=playersDict
 
+
+
 def menuMode_mousePressed(app, event):
+    # persistent buttons
+    for button in app.buttons:
+        if button.isPressed(event.x, event.y):
+            button.action(app, button)
+    
+    # menu buttons
     for button in app.menuButtons:
         if button.isPressed(event.x, event.y): 
             button.action(app, app.menuPlayersDict[button.label])
@@ -47,6 +55,8 @@ def menuMode_mousePressed(app, event):
 
 def menuMode_redrawAll(app, canvas):
     for button in app.menuButtons:
+        button.draw(canvas)
+    for button in app.buttons:
         button.draw(canvas)
 
 
