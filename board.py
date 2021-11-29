@@ -29,9 +29,6 @@ class Board():
         self.cardSkin = 'full' #light or full
         self.loadImages(app)
 
-
-#TODO: implement bidding system
-
         #TODO: remove harcoding
         self.hands = {'n': [Card(3,'D'), Card(14,'S'), Card(7,'S'), Card(6,'S'), Card(14,'D'), Card(9,'C'), Card(13,'H'), Card(5,'C'), Card(13,'S'), Card(8,'H'), Card(8,'C'), Card(3,'H'), Card(7,'H')], 'e': [Card(2,'D'), Card(11,'D'), Card(9,'D'), Card(6,'C'), Card(8,'C'), Card(6,'H'), Card(3,'S'), Card(5,'S'), Card(5,'H'), Card(7,'D'), Card(4,'C'), Card(6,'D'), Card(4,'H')], 's': [Card(4,'D'), Card(12,'S'), Card(13,'D'), Card(4,'S'), Card(10,'S'), Card(11,'H'), Card(9,'S'), Card(11,'S'), Card(10,'D'), Card(13,'C'), Card(14,'C'), Card(2,'C'), Card(3,'C')], 'w': [Card(12,'C'), Card(12,'H'), Card(2,'H'), Card(12,'D'), Card(14,'H'), Card(7,'C'), Card(8,'D'), Card(9,'H'), Card(10,'C'), Card(11,'C'), Card(2,'S'), Card(10,'H'), Card(5,'D')]}
         # self.hands = {'n': [Card(6,'S'), Card(14,'D'), Card(9,'C'), Card(13,'H')], 's': [ Card(11,'H'), Card(13,'C'), Card(12,'C'), Card(12,'H')], 'e': [Card(9,'S'), Card(11,'S'), Card(10,'D'), Card(2,'D')], 'w': [Card(3,'H'), Card(7,'H'), Card(4,'D'), Card(12,'S')]}
@@ -40,8 +37,7 @@ class Board():
         self.currentRound = [] #list of tuples (position, bid)
         self.lead = None # Card of first card in each round
 
-        #TODO: remember to remove hardcoding
-        self.activePosition = 'n' # 'n','e','s', 'w' or None
+        self.activePosition = self.dealer # 'n','e','s', 'w' or None
 
         self.cardDislayWidth = 30 # width of the card shown when in hand format
 
@@ -130,7 +126,7 @@ class Board():
                 break
         if self.bid == SpecialBid('Pass'):
             print('endBoard')
-            self.endBoard = True #TODO: check for this in Game class
+            self.endBoard = True 
         self.status = 'p'
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
         # to skip the dealer and lead from their left
@@ -260,7 +256,6 @@ class Board():
             elif self.cardSkin == 'full':
                 canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
 
-#TODO: finish this
     # draws the bidding history 
     def drawBidHistory(self, app, canvas):
         width = app.width//4
@@ -443,9 +438,8 @@ def testBoardClass():
 
 # def appStarted(app):
 #     app.board1 = Board(15)
-#     app.board1.bid = Bid(4,'S') # bid is currently hard coded. #TODO: remove hardcoding
-#     app.board1.locateBids((app.width//2, app.height//2)) #TODO: locate bids again if screen resizes
-
+#     app.board1.bid = Bid(4,'S') # bid is currently hard coded. 
+#     app.board1.locateBids((app.width//2, app.height//2)) 
 # def mousePressed(app, event):
 #     if app.board1.status == 'p':
 #         # checks if card is pressed and does corresponding actions

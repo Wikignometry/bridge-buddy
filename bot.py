@@ -309,7 +309,6 @@ class Bot():
             return totalPoints >= 27
     
     # returns True if enough points for slam, returns False otherwise 
-    #TODO double check slam value
     def isMinimumSlam(self):
         totalPoints = self.points + self.partnerPoints[0] # the minimum number of points partner may have
         return totalPoints > 32
@@ -594,7 +593,7 @@ class Bot():
 
         # get the modal card picked
         cardPick = 'base'
-        for card in cardCount: #TODO: this feels so ugly
+        for card in cardCount: 
             if cardCount[card] > cardCount[cardPick]:
                 cardPick = card
         print(f'card pick: {cardPick}')
@@ -645,13 +644,11 @@ class Bot():
         return deck
 
 ###################################################################
-# old/irrelevant/tbd code
+# old/irrelevant/tbd/not-working code
 
- # # TODO: update monte carlo when dummy reveals hand
     # def endBidding(self):
     #     pass
 
-    # maybe #TODO? couldn't get this to work yet
     # # prunes Monte Carlo when a card becomes available    
     # def updateMonteCarlo(self, currentRound, nsTricks, ewTricks):
     #     # updating based on the cards played in the round

@@ -22,7 +22,6 @@ def baseHeuristic(node):
     return heuristic
 
 
-# make this better
 
 
 
