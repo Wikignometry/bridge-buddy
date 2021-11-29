@@ -57,10 +57,3 @@ def repr2dList(L):
 
 def print2dList(L):
     print(repr2dList(L))
-
-
-def timer(duration):
-    startTime = time.time()
-    while (time.time() - startTime) < duration:
-        continue
-    return

@@ -45,9 +45,6 @@ def menuMode_mousePressed(app, event):
             button.action(app, app.menuPlayersDict[button.label])
 
 
-def menuMode_keyPressed(app, event):
-    app.sounds['button'].start()
-
 def menuMode_redrawAll(app, canvas):
     for button in app.menuButtons:
         button.draw(canvas)

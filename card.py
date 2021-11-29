@@ -17,6 +17,8 @@ class Card(Button):
         self.location = None # tuple(x, y) or None
         self.targetLocation = None # where it wants to go
 
+        self.fontSize = 12
+
         # card dimensions from https://www.playingcardspersonalised.co.uk/bridge-size-cards
         super().__init__(dimension=(57,89), 
                         fill='white',
@@ -98,7 +100,8 @@ class Card(Button):
         canvas.create_text(x - self.width//2 + self.width//10, 
                     y - self.height//2 + self.height//10, 
                     text=f'{self.getNumber()}\n{self.getSymbol()}', 
-                    anchor='nw', justify='center', fill=self.color)
+                    anchor='nw', justify='center', fill=self.color,
+                    font = ('Calbri', self.fontSize))
 
 
     # returns True if list contains the suit of the card

@@ -6,15 +6,15 @@ import pygame
 ###################################################################
 #       Imported Files
 
-from mode_menu import *
-# 112_graphs, random, card, bid, heuristic, copy, mode_game
-# special_bid, helper button, node, game, bot, player imported via mode_menu
+
+# 112_graphs, random, card, bid, heuristic, copy, mode_game, mode_menu
+# special_bid, helper button, node, game, bot, player imported via mode_splash
 from sound import *
+from mode_splash import *
 ###################################################################
 
 def appStarted(app):
-    initiateMenu(app)
-    app.mode = 'menuMode'
+    initiateSplash(app)
     pygame.mixer.init()
     app.sounds = {
         'button': Sound('media/button_click.wav'),
