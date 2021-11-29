@@ -45,12 +45,23 @@ def menuMode_mousePressed(app, event):
     # persistent buttons
     for button in app.buttons:
         if button.isPressed(event.x, event.y):
+            
+            # plays sound effect if enabled (before screen change)
+            if app.soundEffects:
+                app.sounds['button'].start()
+
             button.action(app, button)
     
     # menu buttons
     for button in app.menuButtons:
         if button.isPressed(event.x, event.y): 
+
+            #play sound effect if enabled (before screen change)
+            if app.soundEffects:
+                app.sounds['button'].start()
+
             button.action(app, app.menuPlayersDict[button.label])
+            
 
 
 def menuMode_redrawAll(app, canvas):

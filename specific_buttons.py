@@ -19,29 +19,31 @@ def getTopLevelButtons(app):
             (width, height), # dimensions
             action=initiateMenu,
             fill='light grey',
-            label='menu', location=(margin + width//2, margin + height//2)
+            label='menu', location=(margin + width//2, margin + height//2),
+            fontSize = 16
             ),
         Button(
             (width, height), # dimensions
             action=toggleSetting,
             fill='light grey',
-            label='settings', location=(app.width-margin - width//2, margin + height//2)
+            label='settings', location=(app.width-margin - width//2, margin + height//2),
+            fontSize = 16
             )
     ]
 
 # adds or remove setting Buttons
 def toggleSetting(app, _):
     settingButtons = getSettingButtons()
-    locateSettingButtons
-    if settingButtons in app.buttons:
-        app.buttons.append(settingButtons)
+    locateSettingButtons(app.buttons[-1].location, settingButtons)
+    if settingButtons[0] not in app.buttons:
+        app.buttons.extend(settingButtons)
+        
     else:
         removeButtons(app, settingButtons)
 
 def removeButtons(app, buttonList):
-    for button in app.buttons:
-        if button in buttonList:
-            app.buttons.remove(button)
+    for button in buttonList:
+        app.buttons.remove(button)
 
 
 def getSettingButtons():
@@ -52,22 +54,24 @@ def getSettingButtons():
         'sound effects: on': toggleSoundEffects,
         'cheating ai: off': toggleCheating,
     }
-    for label in settingButtonsDict:
+    for tag in settingButtonsDict:
         settingButtons.append(
             Button(
-            (120, 80), # dimensions
-            action=settingButtonsDict[label],
+            (100, 40), # dimensions
+            label=tag,
+            action=settingButtonsDict[tag],
             fill='light grey'
             )
         )
     return settingButtons
 
 # takes in x, y of the center of the lower edge of the settings
-def locateSettingButtons(app, x, y):
+def locateSettingButtons(location, buttons):
+    x, y = location
     margin = 10
-    for i in range(len(app.settingButtons)):
-        button = app.settingButtons[i]
-        button.location = (x, y + button.height + margin)
+    for i in range(len(buttons)):
+        button = buttons[i]
+        button.location = (x, y + (button.height + margin)*(i+1))
 
 
 # changes the card skin and labels between given options 
@@ -90,9 +94,10 @@ def toggleSoundEffects(app, button):
     button.label = f'sound effects: {labelText}'
 
 def toggleCheating(app, button):
+    if app.game == None or app.game.botPosition == '': return # checks for no bots/game
     for position in app.game.botPosition:
         app.game.players[position].cheater = not app.game.players[position].cheater
-    labelText = ['off', 'on'][int(app.game.players['n'].cheater)]
+    labelText = ['off', 'on'][int(app.game.players[app.game.botPosition[0]].cheater)]
     button.label = f'cheating ai: {labelText}'
 
 

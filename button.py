@@ -11,7 +11,7 @@ from helper import *
 
 class Button():
 
-    def __init__(self, dimension, location=None, action=(lambda: None), 
+    def __init__(self, dimension, location=None, action=None, 
                 fill='blue', outline=None, label=None, textFill='black', 
                 r=10, fontSize=12):
         
@@ -33,6 +33,20 @@ class Button():
         # int
         self.r = r 
         self.fontSize = fontSize 
+
+
+    def __repr__(self):
+        if self.label != None:
+            return self.label
+        elif self.action != None:
+            return self.action.__name__
+        else: return 'unknown button'
+
+
+    def __eq__(self, other):
+        if (isinstance(other, Button) and (self.action == None or other.action == None)):
+            return False
+        return self.action == other.action
 
     # returns True if the button isPressed
     #       –> assumes that button is rectangular (doesn't account for rounded corners)

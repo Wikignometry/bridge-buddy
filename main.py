@@ -29,6 +29,9 @@ def appStarted(app):
     # buttons
     app.buttons = getTopLevelButtons(app)
 
+    # baseline
+    app.game = None
+    app.soundEffects = True
         
 
 

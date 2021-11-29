@@ -57,7 +57,8 @@ def splashMode_redrawAll(app, canvas):
     canvas.create_rectangle
     width, height = 2*app.width//3, app.height//5
     x0, y0 = (app.width - width)//2, (app.height - height)//2 # top left corner
-    create_roundedRectangles(canvas, x0, y0, x0+width, y0+height, fill='light grey')    
+    create_roundedRectangles(canvas, x0, y0, x0+width, y0+height, 
+                            fill='light grey', r=40)    
     
     canvas.create_text(app.width//2, app.height//2,
                         text='Bridge Buddy',

@@ -22,7 +22,7 @@ class Bot():
         self.breadth = breadth # refers to the number of Monte Carlo simulations to run
 
         self.knownCards = set() # set of cards we've seen (and therefore cannot be in opponent's hands)
-        self.cheater = False #boolean to indicate whether the bot can look at other players cards
+        self.cheater = True #boolean to indicate whether the bot can look at other players cards
 
         self.dummy = None # turns into a position once dummy is finalized
         self.dummyHand = None # turns into a list of Cards

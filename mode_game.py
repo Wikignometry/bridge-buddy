@@ -14,7 +14,8 @@ from bot import *
 # def appStarted(app):
 def initiateGameMode(app, players):
     app.mode = 'gameMode'
-    app.game = Game(app, players)
+    if app.game == None or players != app.game.players:
+        app.game = Game(app, players)
     app.board = app.game.board
     print(app.game.botPosition)
     app.handLocations = {'n': (app.width//2, 50),
@@ -48,8 +49,11 @@ def gameMode_mousePressed(app, event):
                 if bid.isPressed(event.x, event.y):
                     app.board.playBid(bid)
                     
-                    app.sounds['button'].start()
+                    # plays sound effects
+                    if app.soundEffects:
+                        app.sounds['button'].start()
                     
+                    # checks for end of bidding
                     if app.board.isBiddingEnd():
                         endBidding(app)
         # bot section
@@ -61,14 +65,17 @@ def gameMode_mousePressed(app, event):
         # loop in reverse order so cards the topmost card is activated when pressed
         for card in (app.board.hands[app.board.activePosition])[::-1]:
             if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
-                app.sounds['card'].start()
+                
+                # plays sound effect if app.soundEffects is True
+                if app.soundEffects: 
+                    app.sounds['card'].start()
+
                 app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 print(f'currentRound: {app.board.currentRound}')
 
                 # updates known cards for the bot players
                 for botPosition in app.game.botPosition:
                     app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
-                
                 
                 break # to prevent multiple overlapping cards from being pressed
         
@@ -107,7 +114,7 @@ def botBid(app):
 # function for when the bot is playing
 def botPlay(app):
     # app.game.players[app.board.activePosition].makeNode(app.board.hands, 4, app.board.activePosition, app.board.currentRound, 0, 0, app.board.bid)
-    chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
+    chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks, app.board.hands)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
     app.sounds['card'].start()
