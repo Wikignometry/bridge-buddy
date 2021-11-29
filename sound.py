@@ -5,11 +5,27 @@
 import pygame
 from cmu_112_graphics import *
 ###################################################################
+# The following links were referenced to varying degrees:
+# https://gamedev.stackexchange.com/questions/64472/whats-the-difference-between-pygames-sound-and-music-classes
+# https://stackoverflow.com/questions/42393916/how-can-i-play-multiple-sounds-at-the-same-time-in-pygame
+# https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound
 
 
-
-# from http://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSoundsWithPygame
+# for sound effects (file must be in wav format)
 class Sound():
+
+    def __init__(self, path):
+        self.path = path
+        self.loops = 0
+        self.audio = pygame.mixer.Sound(path)
+
+    def start(self, loops=0):
+        self.loops = loops
+        self.audio.play(loops=loops)
+
+
+# modified from http://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSoundsWithPygame
+class Music(Sound):
 
     def __init__(self, path):
         self.path = path

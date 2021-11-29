@@ -170,9 +170,6 @@ class Board():
         if self.currentRound == []:
             self.lead = card
 
-        # ignores play if it isn't legal
-        if not self.isLegalPlay(card): return
-
         self.hands[self.activePosition].remove(card)
         self.currentRound.append((self.activePosition, card))
         card.targetLocation = targetLocation
@@ -186,7 +183,6 @@ class Board():
         
     # returns True if play is legal
     def isLegalPlay(self, card):
-        
         if self.lead == None: return True
         return (self.lead.suit == card.suit or 
             not self.lead.containsSuit(self.hands[self.activePosition]))

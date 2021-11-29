@@ -48,6 +48,8 @@ def gameMode_mousePressed(app, event):
                 if bid.isPressed(event.x, event.y):
                     app.board.playBid(bid)
                     
+                    app.sounds['button'].start()
+                    
                     if app.board.isBiddingEnd():
                         endBidding(app)
         # bot section
@@ -58,10 +60,11 @@ def gameMode_mousePressed(app, event):
     if app.board.status == 'p': # when cardplay is occuring
         # loop in reverse order so cards the topmost card is activated when pressed
         for card in (app.board.hands[app.board.activePosition])[::-1]:
-            if card.isPressed(event.x, event.y):
+            if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
+                app.sounds['card'].start()
                 app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
                 print(f'currentRound: {app.board.currentRound}')
-                
+
                 # updates known cards for the bot players
                 for botPosition in app.game.botPosition:
                     app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
@@ -92,6 +95,7 @@ def botBid(app):
     chosenBid = app.game.players[app.board.activePosition].playBid(app.board.bids)
     app.board.playBid(chosenBid)
     print(f'bids: {app.board.bids}')
+    app.sounds['button'].start()
     if app.board.isBiddingEnd():
         endBidding(app)
     
@@ -102,6 +106,7 @@ def botPlay(app):
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
+    app.sounds['card'].start()
 
 # repositions items when size of screen changes
 def gameMode_sizeChanged(app):
