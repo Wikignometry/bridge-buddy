@@ -30,16 +30,31 @@ def getMenuPlayersDict():
 def initiateMenu(app, *args): # args so polymorphism works
     app.mode = 'menuMode'
     app.menuButtons = [
-        Button((app.width//4, app.height//5), location=(app.width//3, app.height//2),
+        Button((app.width//3, 2*app.height//7), location=(app.width//3, app.height//2),
                  label = 'Play Solo', action=initiateGameMode, 
                  fill='deep sky blue', fontSize = 30, textFill='black', r=40),
-        Button((app.width//8, app.height//5), location=(app.width//3 + app.width//5, app.height//2),
+        Button((app.width//5, 2*app.height//7), location=(2*app.width//3, app.height//2),
                 label = 'Teaching\nMode', action=initiateGameMode, 
                 fill='lime green', fontSize = 30, textFill='black', r=40)
     ]
     app.menuPlayersDict = getMenuPlayersDict() # dict where key=button name and value=playersDict
+    app.overlay = overlayImage('media/bridge_board.png')
+    app.overlay = app.scaleImage(app.overlay, 1/4)
+    # rotation from https://pythontic.com/image-processing/pillow/rotate
+    app.overlay = app.overlay.rotate(120, expand = 1)
 
 
+# putalpha from https://stackoverflow.com/questions/24731035/python-pil-0-5-opacity-transparency-alpha
+
+def overlayImage(path):
+    overlay = Image.open(path)
+    # based on https://github.com/python-pillow/Pillow/issues/4687
+    # makes the image more transparent without displaying already transparent pixels
+    overlayCopy = overlay.copy()
+    overlayCopy.putalpha(180)
+    overlay.paste(overlayCopy, overlay)
+    return overlay
+    
 
 def menuMode_mousePressed(app, event):
     # persistent buttons
@@ -69,6 +84,8 @@ def menuMode_redrawAll(app, canvas):
         button.draw(canvas)
     for button in app.buttons:
         button.draw(canvas)
+
+    canvas.create_image(2*app.width//3, app.height//2-app.height//10, image=ImageTk.PhotoImage(app.overlay))
 
 
 

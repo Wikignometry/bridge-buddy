@@ -50,7 +50,7 @@ def getSettingButtons():
     settingButtons = []
     settingButtonsDict = { # each function takes in app and button
         'card skin: full': changeCardSkin,
-        'music: none': changeMusic,
+        'music: music': changeMusic,
         'sound effects: on': toggleSoundEffects,
         'cheating ai: off': toggleCheating,
     }
@@ -81,9 +81,24 @@ def changeCardSkin(app, button):
 
 # changes background music
 def changeMusic(app, button):
-    musicList = ['none', 'nature', 'piano']
-    app.music = musicList[musicList.index(app.music)-1] 
-    button.label = f'music: {app.music}'
+    
+    musicList = ['off', 'nature', 'music']
+
+    # get the label
+    if app.music == 'off':
+        label = musicList[musicList.index('off')-1]
+    else:
+        label = musicList[musicList.index(app.music.path[6:-4])-1]
+    
+    
+    if label == 'off':
+        app.music.stop()
+        app.music = 'off'
+    else:
+        app.music = app.sounds[label]
+        app.music.start(loops=-1)
+    
+    button.label = f'music: {label}'
     #rotates is reverse because list indexing can deal with negatives, but not out of bounds
 
 # turns on/off sound effects

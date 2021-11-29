@@ -12,6 +12,8 @@ def initiateSplash(app):
     app.mode = 'splashMode'
     app.displayCard = [Card(14,'S'), Card(5,'H'), Card(14,'D'), Card(14,'C'), Card(2,'C')]
     locateDisplayCards(app)
+    for card in app.displayCard:
+        card.width, card.height = card.width*1.5, card.height*1.5
     app.hoveredCard = None
     
 # locates the display cards
@@ -27,24 +29,26 @@ def locateDisplayCards(app):
         if card == Card(5,'H'):
             xCard += splitWidth
         card.fontSize = 16
-        card.width, card.height = card.width*1.5, card.height*1.5
 
 
 def splashMode_keyPressed(app, event):
+    app.music.start(loops=-1)
     initiateMenu(app)
 
 def splashMode_mouseMoved(app, event):
-    print('moved')
     for card in app.displayCard:
         if card.isPressed(event.x, event.y): # not pressed, only hovered, but same idea
-            print('foo')
-            app.hoveredCard = card
-            return
+            if card != app.hoveredCard:
+                app.hoveredCard = card
+                app.hoveredCard.targetLocation = (app.hoveredCard.location[0], app.hoveredCard.location[1] - 20)
+                return
+            else:
+                return
     app.hoveredCard = None
     locateDisplayCards(app)
     
 #FIXME!!! Why doesn't this work?
-def splashMode_mouseMoved(app, event):
+def splashMode_timerFired(app):
     if app.hoveredCard != None:
         app.hoveredCard.move(0.3)          
 

@@ -39,6 +39,10 @@ def gameMode_mousePressed(app, event):
     ##################### buttons #####################
     for button in app.buttons:
         if button.isPressed(event.x, event.y):
+
+            if app.soundEffects:
+                app.sounds['button'].start()
+
             button.action(app, button)
     ##################### bidding #####################
     if app.board.status == 'b': 

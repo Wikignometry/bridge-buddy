@@ -23,7 +23,9 @@ def appStarted(app):
     pygame.mixer.init()
     app.sounds = {
         'button': Sound('media/button_click.wav'),
-        'card': Sound('media/play_card.wav')
+        'card': Sound('media/play_card.wav'),
+        'music': Music('media/music.mp3'),
+        'nature': Music('media/nature.mp3'),
     } # dict of key=sound label and value=Sound
 
     # buttons
@@ -32,6 +34,7 @@ def appStarted(app):
     # baseline
     app.game = None
     app.soundEffects = True
+    app.music = app.sounds['nature'] # 'music', 'nature' or 'off'
         
 
 
