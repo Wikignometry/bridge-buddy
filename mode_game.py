@@ -8,7 +8,8 @@ from node import *
 from game import *
 from bot import *
 # player imported via bot
-
+from server import *
+from client import *
 ###################################################################
 
 # def appStarted(app):
@@ -38,6 +39,13 @@ def initiateGameMode(app, players):
         player = app.game.players[position]
         player.interpretInitialHand(app.board.hands[position])
 
+    if app.connection == 'server': # server is north
+        server(app)
+        app.partner = app.game.players['s'] # south is hardcoded as the socket
+        app.partner.acceptSocket(app) 
+    elif app.connection == 'client':
+        client(app)
+        app.player.createSocket(app) 
 
 def gameMode_mousePressed(app, event):
     ##################### buttons #####################
@@ -55,6 +63,7 @@ def gameMode_mousePressed(app, event):
             for bid in row:
 
                 if bid.isPressed(event.x, event.y):
+
                     app.board.playBid(bid)
                     
                     # plays sound effects
@@ -64,6 +73,15 @@ def gameMode_mousePressed(app, event):
                     # checks for end of bidding
                     if app.board.isBiddingEnd():
                         endBidding(app)
+
+                    # if it is the client's turn and you're the client
+                    if app.board.activePosition == 's' and app.connection == 'client':
+                        app.player.sendBid(bid) # send the bid to the server
+                    # if it is the server's turn and you're the server
+                    elif app.board.activePosition == 'n' and app.connection == 'server':
+                        app.partner.sendBid(bid) # send the bid to your partner
+                    
+
 
                     app.timeElapsed = 0 # so timer starts after last play
 
@@ -142,13 +160,18 @@ def gameMode_timerFired(app):
     for _ , card in app.board.currentRound:
         card.move(0.3) #TODO: fix magic number?
     
-    # bot section
+    ##################### bots #####################
     if isinstance(app.game.players[app.board.activePosition], Bot) and app.timeElapsed >= app.delay:
         app.timeElapsed = 0
         if app.board.status == 'p':
             botPlay(app) 
         else:
             botBid(app)
+
+    ##################### sockets #####################
+    # if it is the client's turn and you're the server
+    if app.board.activePosition == 's' and app.connection == 'server':
+        app.player.getBid()
 
 
 def gameMode_redrawAll(app, canvas):

@@ -33,6 +33,8 @@ def locateDisplayCards(app):
 
 def splashMode_keyPressed(app, event):
     app.music.start(loops=-1)
+    username = app.getUserInput('Input your username:')
+    app.player = Player(username)
     initiateMenu(app)
 
 def splashMode_mouseMoved(app, event):

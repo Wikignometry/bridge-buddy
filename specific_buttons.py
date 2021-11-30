@@ -15,15 +15,13 @@ def getTopLevelButtons(app):
     margin = 10
     width, height = 100, 40
     return [
-        Button(
-            (width, height), # dimensions
+        Button((width, height), # dimensions
             action=initiateMenu,
             fill='light grey',
             label='menu', location=(margin + width//2, margin + height//2),
             fontSize = 16
             ),
-        Button(
-            (width, height), # dimensions
+        Button((width, height), # dimensions
             action=toggleSetting,
             fill='light grey',
             label='settings', location=(app.width-margin - width//2, margin + height//2),

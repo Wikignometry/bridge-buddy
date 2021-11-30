@@ -8,9 +8,9 @@ from mode_game import *
 
 ###################################################################
 
-def getMenuPlayersDict():
+def getMenuPlayersDict(app):
     solo = {
-        'n': Player('PlayerNorth'),
+        'n': app.player,
         'e': Bot('e', 4, 9),
         's': Bot('s', 4, 9),
         'w': Bot('w', 4, 9),
@@ -22,9 +22,26 @@ def getMenuPlayersDict():
         'w': Player('PlayerWest'),
     }
 
+    partner = {
+        'n': app.player,
+        'e': Player('PlayerEast'),
+        's': Player('PlayerSouth'),
+        'w': Player('PlayerWest'),
+    }
+
+    joinPartner = {
+        'n': Player('PlayerNorth'),
+        'e': Player('PlayerEast'),
+        's': app.player,
+        'w': Player('PlayerWest'),
+    }
+
+
     return {
         'Play Solo': solo,
-        'Teaching\nMode': teaching
+        'Teaching\nMode': teaching,
+        'Join\nPartner': joinPartner,
+        'Play with\nPartner': partner
     }
 
 def initiateMenu(app, *args): # args so polymorphism works
@@ -33,11 +50,20 @@ def initiateMenu(app, *args): # args so polymorphism works
         Button((app.width//3, 2*app.height//7), location=(app.width//3, app.height//2),
                  label = 'Play Solo', action=initiateGameMode, 
                  fill='deep sky blue', fontSize = 30, textFill='black', r=40),
+        
         Button((app.width//5, 2*app.height//7), location=(2*app.width//3, app.height//2),
                 label = 'Teaching\nMode', action=initiateGameMode, 
+                fill='lime green', fontSize = 30, textFill='black', r=40),
+        
+        Button((app.width//5, 2*app.height//7), location=(app.width//3, app.height//4),
+                label = 'Play with\nPartner', action=initiateGameMode, 
+                fill='lime green', fontSize = 30, textFill='black', r=40),
+        
+        Button((app.width//5, 2*app.height//7), location=(2*app.width//3, app.height//4),
+                label = 'Join\nPartner', action=initiateGameMode, 
                 fill='lime green', fontSize = 30, textFill='black', r=40)
     ]
-    app.menuPlayersDict = getMenuPlayersDict() # dict where key=button name and value=playersDict
+    app.menuPlayersDict = getMenuPlayersDict(app) # dict where key=button name and value=playersDict
     app.overlay = overlayImage('media/bridge_board.png')
     app.overlay = app.scaleImage(app.overlay, 1/4)
     # rotation from https://pythontic.com/image-processing/pillow/rotate
@@ -75,6 +101,10 @@ def menuMode_mousePressed(app, event):
             if app.soundEffects:
                 app.sounds['button'].start()
 
+            if button.label == 'Join\nPartner':
+                app.connection = 'client'
+            elif button.label == 'Play with\nPartner':
+                app.connection = 'server'
             button.action(app, app.menuPlayersDict[button.label])
             
 

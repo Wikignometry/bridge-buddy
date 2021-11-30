@@ -62,6 +62,8 @@ class Music(Sound):
 ###################################################################
 #       Test Functions
 
+# testcode from http://www.cs.cmu.edu/~112/notes/notes-animations-part4.html#playingSoundsWithPygame
+
 # def appStarted(app):
 #     pygame.mixer.init()
 #     app.sound = Sound("media/mouse_click.mp3")
