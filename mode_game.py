@@ -132,17 +132,24 @@ def botBid(app):
     app.board.playBid(chosenBid)
     print(f'bids: {app.board.bids}')
     app.sounds['button'].start()
+    
     if app.board.isBiddingEnd():
         endBidding(app)
+    
+    # plays sound effects
+    if app.soundEffects:
+        app.sounds['button'].start()
     
 
 # function for when the bot is playing
 def botPlay(app):
-    # app.game.players[app.board.activePosition].makeNode(app.board.hands, 4, app.board.activePosition, app.board.currentRound, 0, 0, app.board.bid)
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks, app.board.hands)
     print(f'botPlay: {chosenCard, app.board.activePosition}')
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
-    app.sounds['card'].start()
+    
+    # card sounds effect
+    if app.soundEffect:
+        app.sounds['card'].start()
 
 # repositions items when size of screen changes
 def gameMode_sizeChanged(app):
@@ -171,7 +178,51 @@ def gameMode_timerFired(app):
     ##################### sockets #####################
     # if it is the client's turn and you're the server
     if app.board.activePosition == 's' and app.connection == 'server':
+<<<<<<< Updated upstream
         app.player.getBid()
+=======
+        if app.board.status == 'b':
+            bid = app.partner.getBid() # get bid from partner
+            app.board.playBid(bid)
+            if app.board.isBiddingEnd():
+                endBidding(app)
+
+            # plays sound effects
+            if app.soundEffects:
+                app.sounds['button'].start()
+
+        if app.board.status == 'p':
+            card = app.partner.getCard() # get bid from partner
+            app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+
+            # card sounds effect
+            if app.soundEffect:
+                app.sounds['card'].start()
+    
+    # if it is the server's turn and you're the client
+    if app.board.activePosition == 'n' and app.connection == 'client':
+        if app.board.status == 'b':
+            bid = app.player.getBid() # get bid from partner
+            app.board.playBid(bid)
+            if app.board.isBiddingEnd():
+                endBidding(app)
+
+            # plays sound effects
+            if app.soundEffects:
+                app.sounds['button'].start()
+
+        if app.board.status == 'p':
+            card = app.player.getCard() # get bid from partner
+            app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+
+            # card sounds effect
+            if app.soundEffect:
+                app.sounds['card'].start()
+    
+
+
+
+>>>>>>> Stashed changes
 
 
 def gameMode_redrawAll(app, canvas):
