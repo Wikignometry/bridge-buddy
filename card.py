@@ -19,6 +19,8 @@ class Card(Button):
 
         self.fontSize = 12
 
+        self.flipped = False # True if card is face down
+
         # card dimensions from https://www.playingcardspersonalised.co.uk/bridge-size-cards
         super().__init__(dimension=(57,89), 
                         fill='white',
@@ -95,13 +97,21 @@ class Card(Button):
     def draw(self, canvas):
         if self.location == None: 
             return
-        super().draw(canvas)
         x, y = self.location
-        canvas.create_text(x - self.width//2 + self.width//10, 
-                    y - self.height//2 + self.height//10, 
-                    text=f'{self.getNumber()}\n{self.getSymbol()}', 
-                    anchor='nw', justify='center', fill=self.color,
-                    font = ('Calbri', self.fontSize))
+        if self.flipped:
+            create_roundedRectangles(canvas, # flipped cards
+                                x - self.width//2, y - self.height//2,
+                                x + self.width//2, y + self.height//2,
+                                r=self.r, fill='#185D9E', outline=self.outline)
+            
+        else:
+            super().draw(canvas)
+            canvas.create_text(x - self.width//2 + self.width//10, 
+                        y - self.height//2 + self.height//10, 
+                        text=f'{self.getNumber()}\n{self.getSymbol()}', 
+                        anchor='nw', justify='center', fill=self.color,
+                        font = ('Calbri', self.fontSize))
+        
 
 
     # returns True if list contains the suit of the card

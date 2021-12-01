@@ -36,11 +36,20 @@ def initiateGameMode(app, players):
                                     's': (app.width//2, app.height//2 + 57),
                                     'w': (app.width//2 - 57, app.height//2)
         }
+        
+        if app.teaching == False:
+            for position in 'nsew':
+                if app.game.players[position] != app.player:
+                    app.board.flipHand(app.board.hands[position])
+        
         app.board.locateBids((app.width//2, app.height//2))
         app.board.locateHands(app.handLocations)
         for position in app.game.botPosition:
             player = app.game.players[position]
             player.interpretInitialHand(app.board.hands[position])
+        
+        
+        
         print(f'app.connection: {app.connection} ')
         if app.connection == 'server': # server is north
             server(app)
@@ -203,6 +212,13 @@ def gameMode_timerFired(app):
     for _ , card in app.board.currentRound:
         card.move(0.3) #TODO: fix magic number?
     
+    if app.board.index >= 33: # there are 34 boards in a tournament in Bridge
+        app.game = None # end game
+        for button in app.buttons:
+            if button.label == 'menu':
+                button.action(app) # return to menu screen
+
+
     ##################### bots #####################
     if isinstance(app.game.players[app.board.activePosition], Bot) and app.timeElapsed >= app.delay:
         app.timeElapsed = 0

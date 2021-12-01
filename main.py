@@ -36,6 +36,7 @@ def appStarted(app):
     app.soundEffects = True
     app.music = app.sounds['music'] # 'music', 'nature' or 'off'
     app.connection = False # 'server' 'client' or False
+    
 
 def appStopped(app):
     if isinstance(app.music, Music):

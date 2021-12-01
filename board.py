@@ -161,6 +161,8 @@ class Board():
 
     # actions to perform when a card is pressed
     def playCard(self, card, targetLocation):
+        
+        card.flipped = False
 
         # first card played is the lead
         if self.currentRound == []:
@@ -199,6 +201,11 @@ class Board():
         for position in 'nsew':
             self.locateHand(self.hands[position], positionDict[position])
 
+    # flip given hand 
+    def flipHand(self, hand):
+        for card in hand:
+            card.flipped = not card.flipped 
+
     # performs all the neccesary actions for a round end
     def endRound(self):
         winner, _ = self.getWinner(self.currentRound) # returns winning position and winning card (because recursion)
@@ -236,6 +243,8 @@ class Board():
                 # sets the image to a dictionary where key=Card
                 if suit != 'e':
                     self.cardImages[Card((col+12)%13+2, suit)] = card
+                elif suit == 'e' and col == 2:
+                    self.cardImages['back'] = card
         
 
     # draw each card in the hand
@@ -245,8 +254,10 @@ class Board():
                 if self.cardSkin == 'light':
                     card.draw(canvas)
                 elif self.cardSkin == 'full':
-                    canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
-                
+                    if card.flipped == False:
+                        canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
+                    else:
+                        canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages['back']))
 
     # draw played cards in the current round
     def drawPlayedCards(self, canvas):
@@ -254,7 +265,11 @@ class Board():
             if self.cardSkin == 'light':
                     card.draw(canvas)
             elif self.cardSkin == 'full':
-                canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
+                if card.flipped == False:
+                        canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages[card]))
+                else:
+                    canvas.create_image(card.location[0], card.location[1], image=ImageTk.PhotoImage(self.cardImages['back']))
+
 
     # draws the bidding history 
     def drawBidHistory(self, app, canvas):
@@ -271,10 +286,10 @@ class Board():
     # draws the columns for the bids to be in and the bids themselves
     def drawBidColumns(self, canvas, xCenter, yCenter, width, height):
         colWidth = width//6
-        colHeight = 2*height//3
+        colHeight = 5*height//7
         margin = 10
         # x0, y0 is the top right of the area with bid columns
-        x0, y0 = xCenter - colWidth*2 - margin*1.5, yCenter - colHeight//2 + height//10
+        x0, y0 = xCenter - colWidth*2 - margin*1.5, yCenter - colHeight//2 + height//15
         for i in range(4):
             xCol, yCol = x0+i*(colWidth+margin), y0 # top left of each col
             canvas.create_text(xCol + colWidth//2, yCol - 10, 
@@ -364,7 +379,6 @@ class Board():
                                 fill='light grey', outline='black')
         canvas.create_text(rightEdge - width//2, bottomEdge - width//2, 
                             text=self.index + 1, font=('Calbri', '40'))
-
 
 
     # draws the rectangle/triangles for the vulnerabilities 
