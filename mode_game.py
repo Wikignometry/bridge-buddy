@@ -114,6 +114,8 @@ def gameMode_mousePressed(app, event):
             # loop in reverse order so cards the topmost card is activated when pressed
             for card in (app.board.hands[app.board.activePosition])[::-1]:
                 if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
+
+                    # sockets
                         # if it is the client's turn and you're the client
                         if app.board.activePosition == 's' and app.connection == 'client':
                             app.player.sendCard(card) # send the card to the server
@@ -147,9 +149,9 @@ def gameMode_mousePressed(app, event):
         ##################### miscellaneous #####################
         # adjusts the card position for played card
         app.board.locateHands(app.handLocations)
-    except:
+    except Exception as e:
         app.error = True
-        return
+        print(e)
 
 
 def endBidding(app):
@@ -275,9 +277,9 @@ def gameMode_timerFired(app):
                 if app.soundEffects:
                     app.sounds['card'].start()
             return
-    except:
+    except Exception as e:
         app.error = True
-        return
+        print(e)
 
 
 

@@ -1,8 +1,9 @@
+# code for initial server setup
 ###################################################################
 #       Imported Modules
 import socket
 ###################################################################
-# In order of usefulness, I used the following sources for line 13
+# In order of usefulness, I used the following sources for line 14
 # https://linux.die.net/man/3/setsockopt
 # https://stackoverflow.com/questions/5875177/how-to-close-a-socket-left-open-by-a-killed-program
 #

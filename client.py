@@ -2,7 +2,7 @@
 #       Imported Modules
 import socket
 ###################################################################
-#  
+#  initial client setup
 
 def client(app):
     app.HOST = socket.gethostbyname(socket.gethostname()) # public ip address
@@ -10,8 +10,8 @@ def client(app):
 
 
 
-
-
+###################################################################
+#       Test Functions
 
 # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 
