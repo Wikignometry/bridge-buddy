@@ -11,7 +11,6 @@ import random
 
 class Player():
 
-    #TODO: more parameters to come
     def __init__(self, username):
         self.username = username
         self.socket = None # a socket object
@@ -36,7 +35,6 @@ class Player():
         self.socket.settimeout(10) # timeout after 5 seconds
         # settimeout from https://stackoverflow.com/questions/3432102/python-socket-connection-timeout
         self.socket.connect((app.HOST, app.PORT))
-        print('socketCreated')
 
 ###################################################################
 #   for both
@@ -52,48 +50,36 @@ class Player():
     # send card to socket
     def sendCard(self, card):
         self.sendMessage(str(card.number)+card.suit)
-        print(f'sentCard:{card}')
 
     # recieves a card from the socket
     def getCard(self):
         cardStr = self.getMessage()
-        print(f'gotCard:{cardStr}')
         return Card(int(cardStr[:-1]), cardStr[-1])
 
     # sends a bid (NT are represented as N)
     def sendBid(self, bid):
         if isinstance(bid, SpecialBid):
             bid = bid.id
-        print(f'sendingBid: {bid}')
         self.sendMessage(str(bid)) # so all bids are same length
-        print('sentBid')
 
     # returns an interpreted bid
     def getBid(self):
-        print('gettingBid')
         bid = self.getMessage()
-        print(f'gotBid:{bid}')
         # for special bids
         if bid == 'Pass' or bid == 'X' or bid == 'XX':
-            print('foo')
             return SpecialBid(bid)
         return Bid(int(bid[0]), bid[1:])
 
     # kinda arbitrary, but for clarity
     def getSeed(self):
-        print('gettingSeed')
         seed = float(self.getMessage())
-        print(f'my seed is {seed}')
         random.seed(seed)
-        print('gotSeed')
 
     # kinda arbitrary, but for clarity
     def sendSeed(self):
-        print('sendingSeed')
         seed = str(random.random())
         self.sendMessage(seed)
         random.seed(seed)
-        print('gotSeed')
 
 
 

@@ -25,7 +25,6 @@ def initiateGameMode(app, players):
         if app.game == None or players != app.game.players:
             app.game = Game(app, players)
         app.board = app.game.board
-        print(app.game.botPosition)
         app.handLocations = {'n': (app.width//2, 50),
                                 'e': (app.width-250, app.height//2), 
                                 's': (app.width//2, app.height-50), 
@@ -49,8 +48,7 @@ def initiateGameMode(app, players):
             player.interpretInitialHand(app.board.hands[position])
         
         
-        
-        print(f'app.connection: {app.connection} ')
+    
         if app.connection == 'server': # server is north
             server(app)
             app.partner = app.game.players['s'] # south is hardcoded as the socket
@@ -60,7 +58,7 @@ def initiateGameMode(app, players):
             client(app)
             app.player.createSocket(app) 
             app.player.getSeed()
-            print('client!')
+
     except:
         app.error = True
         return
@@ -86,11 +84,9 @@ def gameMode_mousePressed(app, event):
                             # so the active position is right
                             # if it is the client's turn and you're the client
                             if app.board.activePosition == 's' and app.connection == 'client':
-                                print('client sendingBidinMode')
                                 app.player.sendBid(bid) # send the bid to the server
                             # if it is the server's turn and you're the server
                             elif app.board.activePosition == 'n' and app.connection == 'server':
-                                print('server sendingBidinMode')
                                 app.partner.sendBid(bid) # send the bid to your partner
                         
 
@@ -129,7 +125,6 @@ def gameMode_mousePressed(app, event):
                             app.sounds['card'].start()
 
                         app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
-                        print(f'currentRound: {app.board.currentRound}')
 
                         # updates known cards for the bot players
                         for botPosition in app.game.botPosition:
@@ -143,7 +138,7 @@ def gameMode_mousePressed(app, event):
         ##################### ending #####################
         if app.board.endBoard:
             app.game.newBoard(app)
-            app.board = app.game.board #TODO: maybe change all app.board to app.game.board
+            app.board = app.game.board
             app.board.locateBids((app.width//2, app.height//2))
         
         ##################### miscellaneous #####################
@@ -151,7 +146,7 @@ def gameMode_mousePressed(app, event):
         app.board.locateHands(app.handLocations)
     except Exception as e:
         app.error = True
-        print(e)
+        print(e) #intentionally left in here so the more computer savvy players can see what went wrong
 
 
 def endBidding(app):
@@ -164,7 +159,6 @@ def endBidding(app):
 def botBid(app):
     chosenBid = app.game.players[app.board.activePosition].playBid(app.board.bids)
     app.board.playBid(chosenBid)
-    print(f'bids: {app.board.bids}')
     app.sounds['button'].start()
     
     if app.board.isBiddingEnd():
@@ -178,7 +172,6 @@ def botBid(app):
 # function for when the bot is playing
 def botPlay(app):
     chosenCard = app.game.players[app.board.activePosition].playTurn(app.board.currentRound, app.board.nsTricks, app.board.ewTricks, app.board.hands)
-    print(f'botPlay: {chosenCard, app.board.activePosition}')
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
     
     # card sounds effect
@@ -207,7 +200,7 @@ def gameMode_timerFired(app):
         app.timeElapsed += app.timerDelay
 
         for _ , card in app.board.currentRound:
-            card.move(0.3) #TODO: fix magic number?
+            card.move(0.3) 
         
         if app.board.index >= 33: # there are 34 boards in a tournament in Bridge
             app.game = None # end game
@@ -230,7 +223,6 @@ def gameMode_timerFired(app):
         if app.timeElapsed <= app.delay: return # to create a delay between card play
         elif app.board.activePosition == 's' and app.connection == 'server':
             if app.board.status == 'b':
-                print('server gettingBid in mode')
                 bid = app.partner.getBid() # get bid from partner
                 app.board.playBid(bid)
                 if app.board.isBiddingEnd():
@@ -255,7 +247,6 @@ def gameMode_timerFired(app):
         if app.board.activePosition == 'n' and app.connection == 'client':
             
             if app.board.status == 'b':
-                print('client gettingBid in mode')
                 bid = app.player.getBid() # get bid from partner
                 app.board.playBid(bid)
                 if app.board.isBiddingEnd():
@@ -264,7 +255,6 @@ def gameMode_timerFired(app):
                 # plays sound effects
                 if app.soundEffects:
                     app.sounds['button'].start()
-                print('gotBid')
 
             if app.board.status == 'p':
                 card = app.player.getCard() # get bid from partner
@@ -297,7 +287,7 @@ def gameMode_redrawAll(app, canvas):
     for button in app.buttons:
         button.draw(canvas)
     if app.error:
-        drawError(app,canvas) #TODO
+        drawError(app,canvas)
 
 def drawError(app, canvas):
     create_roundedRectangles(canvas, app.width//4, 2*app.height//5, 3*app.width//4, 3*app.height//5, fill='#a7d1ca') 

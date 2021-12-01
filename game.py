@@ -50,7 +50,6 @@ class Game():
                                     x - length//2, bottomEdge - height, 
                                     x + length//2, bottomEdge + margin, 
                                     fill=color, outline=None)
-        #TODO add usernames
 
     # returns True is the game has ended
     def isGameEnd(self):

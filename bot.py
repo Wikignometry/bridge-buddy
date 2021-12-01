@@ -45,7 +45,6 @@ class Bot():
         # min and max in inclusive
         self.forcing = False # otherwise, Bid
         self.conventionUsed = None # 's' for stayman, 'j' for jacoby
-        # print(self.position, self.distribution, self.points)
 
     # updates the distribution information based on bidding data
     def updateDistribution(self, otherDistribution, suit, min, max):
@@ -193,7 +192,6 @@ class Bot():
 
     # response to any partner bid after the opening
     def otherResponse(self, bids):
-        print(f'otherResponse:{self.bids[:-2][1]}')
         if self.conventionUsed == 'b': #blackwood
             if self.hasFullAces() and self.getLastBid().contract == 5:
                 if self.getTotalPoints() > 40: # grand slam points
@@ -311,7 +309,6 @@ class Bot():
         if self.getLastBid == SpecialBid('Pass'): # don't interpret passes
             return
         elif self.round == 0:
-            print('round 0')
             self.interpretPartnerFirstBid(bids)
         elif self.round == 1:
             self.interpretPartnerRebid(bids)
@@ -538,7 +535,6 @@ class Bot():
 
     # actions to perform when the board is started
     def startPlay(self, hand):
-        print('startPlay')
         self.hand = copy.deepcopy(hand)
         self.knownCards.update(self.hand)
 
@@ -575,9 +571,7 @@ class Bot():
     # aggregates the cards from each node to get the modal card choice
     def getCard(self):
         # gets a dict of card mapped to number of times picked
-        print(f'self.hand: {self.hand}')
         cardCount = {'base': 0}
-        print(f'self.hand length in Node: {len(self.possibleNodes[0].hands[self.position])}')
         for node in self.possibleNodes:
             node.calculateMinimax(self.position in 'ns', baseHeuristic)
             proposedPlay = node.getPlay()
@@ -589,7 +583,6 @@ class Bot():
         for card in cardCount: 
             if cardCount[card] > cardCount[cardPick]:
                 cardPick = card
-        print(f'card pick: {cardPick}')
 
         return cardPick
                
@@ -631,7 +624,6 @@ class Bot():
     # returns a deck with all the cards not in hand
     def makeUnkownDeck(self):
         deck = makeDeck()
-        # print(f'known{self.knownCards}')
         for card in self.knownCards:
             deck.remove(card)
         return deck

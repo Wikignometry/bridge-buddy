@@ -72,8 +72,6 @@ class Button():
                 lowY = (yButton-self.height//2) - (y-height//2) + self.overlayLocation[1]
             if y+height/2 >= yButton+self.height/2:
                 highY = height - ((y+height//2) - (yButton+self.height//2) - self.overlayLocation[1])
-            print(yButton, self.height, y, height)
-            print(lowX, lowY, width-highX, height-highY)
             self.overlay = self.overlay.crop((lowX, lowY, highX, highY))
 
 
@@ -154,6 +152,7 @@ def testButtonClass():
     assert(button1.isPressed(9, 18) == True)
     assert(button1.isPressed(5, 27) == False)
     print('Passed!')
+
 
 # def appStarted(app):
 #     app.button = Button((50,50), (100,100), lambda: print('foo'), fill='royalBlue')

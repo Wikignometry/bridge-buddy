@@ -4,10 +4,19 @@
 
 ### How to run:
 
+The code is run from the 'main.py' 
+
 The 'media' folder should contain the following files:
-- button_click.wav
+* button_click.wav
+* cards.png
+* image1.jpg
+* image5.jpg
+* music.mp3
+* nature.mp3
+* play_card.wav
 
-
+### Necessary Modules:
+* pygame
 
 ## Media citation
 

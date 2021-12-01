@@ -122,7 +122,6 @@ class Board():
                 self.declarer = position
                 break
         if self.bid == SpecialBid('Pass'):
-            print('endBoard')
             self.endBoard = True 
         self.status = 'p'
         self.activePosition = 'nesw'[('nesw'.index(self.activePosition)+1)%4]
