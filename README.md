@@ -2,7 +2,7 @@
 
 ### Project name: Bridge Buddy
 
-### How to run:
+## How to run:
 
 The 'media' folder should contain the following files:
 - button_click.wav
