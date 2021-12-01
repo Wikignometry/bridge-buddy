@@ -69,7 +69,7 @@ def splashMode_redrawAll(app, canvas):
     
     canvas.create_text(app.width//2, app.height//2,
                         text='Bridge Buddy',
-                        anchor='center', font=('Ubuntu', 80, 'bold'), fill='#1F4447')
+                        anchor='center', font=('Ubuntu', 80, 'bold'), fill='white')
     canvas.create_text(app.width//2, app.height - 20, anchor = 's', fill='white',
                         text='Press any key to start', font=('Ubuntu', 30, 'bold'))
 
