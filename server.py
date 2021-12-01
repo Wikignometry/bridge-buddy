@@ -11,6 +11,7 @@ def server(app):
     HOST = socket.gethostbyname(socket.gethostname()) # public ip address
     PORT = 15112
     app.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    app.server.settimeout(10)
     app.server.bind((HOST, PORT))
     app.server.listen()
 

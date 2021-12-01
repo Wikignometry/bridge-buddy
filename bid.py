@@ -16,10 +16,12 @@ class Bid(Button):
 
         self.color = self.getColor() # color names
 
+        outline='black'
+
         super().__init__(dimension=(30, 27), location=(100, 100), 
-                        fill=self.color, outline='white',
+                        fill=self.color, outline=outline,
                         label=f'{self.contract}{self.getSymbol()}',
-                        textFill='white') 
+                        textFill=outline) 
 
     # helps with code testing
     def __eq__(self, other):
@@ -45,7 +47,7 @@ class Bid(Button):
 
     # returns color based on trump suit 
     def getColor(self):
-        bidColorDict = {'C': 'dark green', 'D': 'orange', 'H': 'red', 'S':'blue', 'NT':'grey'}
+        bidColorDict = {'C': '#06D6A0', 'D': '#FFC847', 'H': '#F36888', 'S':'#32BDEC', 'NT':'#9197A1'}
         return bidColorDict[self.trump]
     
     # returns the drawn version of suit symbols
@@ -84,7 +86,6 @@ class Bid(Button):
 def testBidClass():
     print('Testing Bid...', end='')
     bid1 = Bid(5,'S')
-    assert(bid1.color == 'blue')
     assert(bid1.location == (100, 100))
     assert((bid1.width, bid1.height) == (30, 27))
     assert(bid1.isPressed(112, 110) == True)

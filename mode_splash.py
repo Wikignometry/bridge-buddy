@@ -49,7 +49,6 @@ def splashMode_mouseMoved(app, event):
     app.hoveredCard = None
     locateDisplayCards(app)
     
-#FIXME!!! Why doesn't this work?
 def splashMode_timerFired(app):
     if app.hoveredCard != None:
         app.hoveredCard.move(0.3)          

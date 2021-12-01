@@ -17,13 +17,13 @@ def getTopLevelButtons(app):
     return [
         Button((width, height), # dimensions
             action=initiateMenu,
-            fill='light grey',
+            fill='#a7d1ca', outline=None, textFill='black',
             label='menu', location=(margin + width//2, margin + height//2),
             fontSize = 16
             ),
         Button((width, height), # dimensions
             action=toggleSetting,
-            fill='light grey',
+            fill='#a7d1ca', outline=None, textFill='black',
             label='settings', location=(app.width-margin - width//2, margin + height//2),
             fontSize = 16
             )
@@ -58,7 +58,7 @@ def getSettingButtons():
             (100, 40), # dimensions
             label=tag,
             action=settingButtonsDict[tag],
-            fill='light grey'
+            fill='#bcd4d0'
             )
         )
     return settingButtons

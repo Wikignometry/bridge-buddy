@@ -105,8 +105,6 @@ class Bot():
             return self.getOpenersBid()
         # if you don't know what to do, pass
         return SpecialBid('Pass')
-        # else:
-        #     return self.getDefendingBid(bids)
 
 
     def getOpenersBid(self):
@@ -114,11 +112,6 @@ class Bot():
             return self.firstRebid()
         else:
             return self.otherRebid()
-
-
-    def interpretPartnerResponse(self):
-        self.getBidCategory()
-        #TODO:
 
 
     def firstRebid(self):

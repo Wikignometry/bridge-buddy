@@ -9,13 +9,13 @@ class SpecialBid(Button):
     def __init__(self, id):
         self.id = id
         if self.id == 'Pass':
-            super().__init__((50, 27), label='Pass', fill='dark green', 
+            super().__init__((50, 27), label='Pass', fill='#056358', 
                             outline='white', textFill='white')
         elif self.id == 'X': #double
-            super().__init__((30, 27), label='X', fill='red', 
+            super().__init__((30, 27), label='X', fill='#F45B69', 
                             outline='white', textFill='white')
         else: #self.id == 'XX' (redouble)
-            super().__init__((30, 27), label='XX', fill='light blue', 
+            super().__init__((30, 27), label='XX', fill='#4DCAE3', 
                             outline='white', textFill='white')
 
     def locate(self, location):

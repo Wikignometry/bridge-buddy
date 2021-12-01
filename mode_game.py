@@ -14,125 +14,138 @@ from client import *
 
 # def appStarted(app):
 def initiateGameMode(app, players):
-    app.mode = 'gameMode'
+    try:
+        app.mode = 'gameMode'
 
-    app.timeElapsed = 0 
-    app.delay = 500
+        app.timeElapsed = 0 
+        app.delay = 500
 
-    if app.game == None or players != app.game.players:
-        app.game = Game(app, players)
-    app.board = app.game.board
-    print(app.game.botPosition)
-    app.handLocations = {'n': (app.width//2, 50),
-                            'e': (app.width-250, app.height//2), 
-                            's': (app.width//2, app.height-50), 
-                            'w': (250, app.height//2)}
-    app.playedCardPositions = {
-                                'n': (app.width//2, app.height//2 - 57), # 57 is width of a card
-                                'e': (app.width//2 + 57, app.height//2),
-                                's': (app.width//2, app.height//2 + 57),
-                                'w': (app.width//2 - 57, app.height//2)
-    }
-    app.board.locateBids((app.width//2, app.height//2))
-    app.board.locateHands(app.handLocations)
-    for position in app.game.botPosition:
-        player = app.game.players[position]
-        player.interpretInitialHand(app.board.hands[position])
-    print(f'app.connection: {app.connection} ')
-    if app.connection == 'server': # server is north
-        server(app)
-        app.partner = app.game.players['s'] # south is hardcoded as the socket
-        app.partner.acceptSocket(app) 
-        app.partner.sendSeed()
-    elif app.connection == 'client':
-        client(app)
-        app.player.createSocket(app) 
-        app.player.getSeed()
-        print('client!')
+        app.error = False
 
-def gameMode_mousePressed(app, event):
-    ##################### buttons #####################
-    for button in app.buttons:
-        if button.isPressed(event.x, event.y):
-
-            if app.soundEffects:
-                app.sounds['button'].start()
-
-            button.action(app, button)
-    ##################### bidding #####################
-    if app.board.status == 'b': 
-         
-        for row in app.board.bidOptions:
-            for bid in row:
-
-                if bid.isPressed(event.x, event.y):
-
-                    # so the active position is right
-                    # if it is the client's turn and you're the client
-                    if app.board.activePosition == 's' and app.connection == 'client':
-                        print('client sendingBidinMode')
-                        app.player.sendBid(bid) # send the bid to the server
-                    # if it is the server's turn and you're the server
-                    elif app.board.activePosition == 'n' and app.connection == 'server':
-                        print('server sendingBidinMode')
-                        app.partner.sendBid(bid) # send the bid to your partner
-                    
-
-
-                    app.board.playBid(bid)
-                    
-                    # plays sound effects
-                    if app.soundEffects:
-                        app.sounds['button'].start()
-                    
-                    # checks for end of bidding
-                    if app.board.isBiddingEnd():
-                        endBidding(app)
-
-                    
-
-                    app.timeElapsed = 0 # so timer starts after last play
-
-    ##################### playing #####################
-    if app.board.status == 'p': # when cardplay is occuring
-        # loop in reverse order so cards the topmost card is activated when pressed
-        for card in (app.board.hands[app.board.activePosition])[::-1]:
-            if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
-                
-                # if it is the client's turn and you're the client
-                if app.board.activePosition == 's' and app.connection == 'client':
-                    app.player.sendCard(card) # send the card to the server
-                # if it is the server's turn and you're the server
-                elif app.board.activePosition == 'n' and app.connection == 'server':
-                    app.partner.sendCard(card) # send the card to your partner
-
-
-                # plays sound effect if app.soundEffects is True
-                if app.soundEffects: 
-                    app.sounds['card'].start()
-
-                app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
-                print(f'currentRound: {app.board.currentRound}')
-
-                # updates known cards for the bot players
-                for botPosition in app.game.botPosition:
-                    app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
-                
-                app.timeElapsed = 0 # so timer starts after last play
-
-                
-                break # to prevent multiple overlapping cards from being pressed
-        
-    ##################### ending #####################
-    if app.board.endBoard:
-        app.game.newBoard(app)
-        app.board = app.game.board #TODO: maybe change all app.board to app.game.board
+        if app.game == None or players != app.game.players:
+            app.game = Game(app, players)
+        app.board = app.game.board
+        print(app.game.botPosition)
+        app.handLocations = {'n': (app.width//2, 50),
+                                'e': (app.width-250, app.height//2), 
+                                's': (app.width//2, app.height-50), 
+                                'w': (250, app.height//2)}
+        app.playedCardPositions = {
+                                    'n': (app.width//2, app.height//2 - 57), # 57 is width of a card
+                                    'e': (app.width//2 + 57, app.height//2),
+                                    's': (app.width//2, app.height//2 + 57),
+                                    'w': (app.width//2 - 57, app.height//2)
+        }
         app.board.locateBids((app.width//2, app.height//2))
-    
-    ##################### miscellaneous #####################
-    # adjusts the card position for played card
-    app.board.locateHands(app.handLocations)
+        app.board.locateHands(app.handLocations)
+        for position in app.game.botPosition:
+            player = app.game.players[position]
+            player.interpretInitialHand(app.board.hands[position])
+        print(f'app.connection: {app.connection} ')
+        if app.connection == 'server': # server is north
+            server(app)
+            app.partner = app.game.players['s'] # south is hardcoded as the socket
+            app.partner.acceptSocket(app) 
+            app.partner.sendSeed()
+        elif app.connection == 'client':
+            client(app)
+            app.player.createSocket(app) 
+            app.player.getSeed()
+            print('client!')
+    except:
+        app.error = True
+        return
 
+def gameMode_mousePressed(app, event):   
+    try:
+        ##################### buttons #####################
+        for button in app.buttons:
+            if button.isPressed(event.x, event.y):
+
+                if app.soundEffects:
+                    app.sounds['button'].start()
+
+                button.action(app, button)
+        ##################### bidding #####################
+        if app.board.status == 'b': 
+            
+            for row in app.board.bidOptions:
+                for bid in row:
+
+                    if bid.isPressed(event.x, event.y):
+                        
+                            # so the active position is right
+                            # if it is the client's turn and you're the client
+                            if app.board.activePosition == 's' and app.connection == 'client':
+                                print('client sendingBidinMode')
+                                app.player.sendBid(bid) # send the bid to the server
+                            # if it is the server's turn and you're the server
+                            elif app.board.activePosition == 'n' and app.connection == 'server':
+                                print('server sendingBidinMode')
+                                app.partner.sendBid(bid) # send the bid to your partner
+                        
+
+
+                            app.board.playBid(bid)
+                            
+                            # plays sound effects
+                            if app.soundEffects:
+                                app.sounds['button'].start()
+                            
+                            # checks for end of bidding
+                            if app.board.isBiddingEnd():
+                                endBidding(app)
+
+                            app.timeElapsed = 0 # so timer starts after last play
+
+                        
+
+        ##################### playing #####################
+        if app.board.status == 'p': # when cardplay is occuring
+            # loop in reverse order so cards the topmost card is activated when pressed
+            for card in (app.board.hands[app.board.activePosition])[::-1]:
+                if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
+                    try:
+                        # if it is the client's turn and you're the client
+                        if app.board.activePosition == 's' and app.connection == 'client':
+                            app.player.sendCard(card) # send the card to the server
+                        # if it is the server's turn and you're the server
+                        elif app.board.activePosition == 'n' and app.connection == 'server':
+                            app.partner.sendCard(card) # send the card to your partner
+
+
+                        # plays sound effect if app.soundEffects is True
+                        if app.soundEffects: 
+                            app.sounds['card'].start()
+
+                        app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+                        print(f'currentRound: {app.board.currentRound}')
+
+                        # updates known cards for the bot players
+                        for botPosition in app.game.botPosition:
+                            app.game.players[botPosition].updateKnownCards(app.board.activePosition, card)
+                        
+                        app.timeElapsed = 0 # so timer starts after last play
+
+                        
+                        break # to prevent multiple overlapping cards from being pressed
+            
+                    except:
+                        app.error = True
+                        return
+
+        ##################### ending #####################
+        if app.board.endBoard:
+            app.game.newBoard(app)
+            app.board = app.game.board #TODO: maybe change all app.board to app.game.board
+            app.board.locateBids((app.width//2, app.height//2))
+        
+        ##################### miscellaneous #####################
+        # adjusts the card position for played card
+        app.board.locateHands(app.handLocations)
+    except:
+        app.error = True
+        return
 
 
 def endBidding(app):
@@ -174,6 +187,14 @@ def gameMode_sizeChanged(app):
                             's': (app.width//2, app.height-50), 
                             'w': (250, app.height//2)}
     app.board.locateHands(app.handLocations)
+
+def gameMode_keyPressed(app, event):
+    if app.error:
+        app.error = False
+        app.game = None
+        for button in app.buttons:
+            if button.label == 'menu':
+                button.action(app) # return to menu screen
 
 def gameMode_timerFired(app):
     
@@ -249,7 +270,7 @@ def gameMode_timerFired(app):
 
 
 def gameMode_redrawAll(app, canvas):
-    canvas.create_rectangle(0, 0, app.width, app.height, fill='forest green') 
+    canvas.create_rectangle(0, 0, app.width, app.height, fill='#2C6337') 
     app.board.drawHands(canvas) 
     app.board.drawPlayedCards(canvas)
     if app.board.status == 'b':
@@ -259,6 +280,14 @@ def gameMode_redrawAll(app, canvas):
     app.board.drawBidHistory(app, canvas)
     for button in app.buttons:
         button.draw(canvas)
+    if app.error:
+        drawError(app,canvas) #TODO
+
+def drawError(app, canvas):
+    create_roundedRectangles(canvas, app.width//4, 2*app.height//5, 3*app.width//4, 3*app.height//5, fill='#a7d1ca') 
+    canvas.create_text(app.width//2, app.height//2, anchor = 'center', justify='center',
+                        text='Error...\nPress any key to return to menu', font=('Ubuntu', 36, 'bold'))
+
 
 
 

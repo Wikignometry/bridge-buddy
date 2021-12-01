@@ -120,7 +120,7 @@ class Board():
     def endBidding(self):
         self.bid = SpecialBid('Pass') # sets in case it is a passout
         for position, bid in self.bids[::-1]: 
-            if bid != SpecialBid('Pass'):
+            if not isinstance(bid, SpecialBid): # so doubles and redoubles are not counted
                 self.bid = bid
                 self.declarer = position
                 break
@@ -263,7 +263,7 @@ class Board():
         x1, y1 = (app.width, app.height) # refers to bottom right of the screen
         create_roundedRectangles(canvas, 
                                 x1 - width, y1 - height,
-                                x1, y1,
+                                x1, y1, outline=None,
                                 fill = 'light grey')
         xCenter, yCenter = x1 - width//2, y1 - height//2
         self.drawBidColumns(canvas, xCenter, yCenter, width, height)
@@ -283,7 +283,7 @@ class Board():
             create_roundedRectangles(canvas, 
                                     xCol, yCol,
                                     xCol+colWidth, yCol+colHeight,
-                                    fill='dark grey')
+                                    fill='dark grey', outline=None)
             for ii in range(len(self.bids)):
                 position, bid = self.bids[ii] 
                 if position == 'nesw'[i]: # if position is the column we are drawing

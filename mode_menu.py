@@ -48,6 +48,9 @@ def getMenuPlayersDict(app):
 def initiateMenu(app, *args): # args so polymorphism works
     app.mode = 'menuMode'
     margin = 10
+    app.connection = None # so it clears after a connected game
+
+
     xCenter, yCenter = app.width//2, app.height//2
     buttonWidth, buttonHeight = app.width//5, 2*app.height//7 # refers to width of small button
     yTopRow = yCenter - margin//2 - buttonHeight//2
@@ -98,7 +101,7 @@ def menuMode_mousePressed(app, event):
 
             if button.label == 'Join\nPartner':
                 app.connection = 'client'
-            elif button.label == 'Play with\nPartner':
+            elif button.label == 'Play with a partner':
                 app.connection = 'server'
             button.action(app, app.menuPlayersDict[button.label])
             

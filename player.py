@@ -33,6 +33,7 @@ class Player():
     def createSocket(self, app):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.settimeout(10) # timeout after 5 seconds
         self.socket.connect((app.HOST, app.PORT))
         print('socketCreated')
 
