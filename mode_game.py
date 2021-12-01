@@ -114,7 +114,6 @@ def gameMode_mousePressed(app, event):
             # loop in reverse order so cards the topmost card is activated when pressed
             for card in (app.board.hands[app.board.activePosition])[::-1]:
                 if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
-                    try:
                         # if it is the client's turn and you're the client
                         if app.board.activePosition == 's' and app.connection == 'client':
                             app.player.sendCard(card) # send the card to the server
@@ -138,10 +137,6 @@ def gameMode_mousePressed(app, event):
 
                         
                         break # to prevent multiple overlapping cards from being pressed
-            
-                    except:
-                        app.error = True
-                        return
 
         ##################### ending #####################
         if app.board.endBoard:
@@ -206,79 +201,82 @@ def gameMode_keyPressed(app, event):
                 button.action(app) # return to menu screen
 
 def gameMode_timerFired(app):
-    
-    app.timeElapsed += app.timerDelay
+    try:
+        app.timeElapsed += app.timerDelay
 
-    for _ , card in app.board.currentRound:
-        card.move(0.3) #TODO: fix magic number?
-    
-    if app.board.index >= 33: # there are 34 boards in a tournament in Bridge
-        app.game = None # end game
-        for button in app.buttons:
-            if button.label == 'menu':
-                button.action(app) # return to menu screen
-
-
-    ##################### bots #####################
-    if isinstance(app.game.players[app.board.activePosition], Bot) and app.timeElapsed >= app.delay:
-        app.timeElapsed = 0
-        if app.board.status == 'p':
-            botPlay(app) 
-        else:
-            botBid(app)
-        return # so bots and sockets are separate
-
-    ##################### sockets #####################
-    # if it is the client's turn and you're the server
-    if app.timeElapsed <= app.delay: return # to create a delay between card play
-    elif app.board.activePosition == 's' and app.connection == 'server':
-        if app.board.status == 'b':
-            print('server gettingBid in mode')
-            bid = app.partner.getBid() # get bid from partner
-            app.board.playBid(bid)
-            if app.board.isBiddingEnd():
-                endBidding(app)
-
-            # plays sound effects
-            if app.soundEffects:
-                app.sounds['button'].start()
-
-        if app.board.status == 'p':
-            card = app.partner.getCard() # get bid from partner
-            for cardInHand in app.board.hands[app.board.activePosition]:
-                if cardInHand == card:
-                    card = cardInHand # so the images attributes etc. are kept
-            app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
-
-            # card sounds effect
-            if app.soundEffects:
-                app.sounds['card'].start()
-    
-    # if it is the server's turn and you're the client
-    if app.board.activePosition == 'n' and app.connection == 'client':
+        for _ , card in app.board.currentRound:
+            card.move(0.3) #TODO: fix magic number?
         
-        if app.board.status == 'b':
-            print('client gettingBid in mode')
-            bid = app.player.getBid() # get bid from partner
-            app.board.playBid(bid)
-            if app.board.isBiddingEnd():
-                endBidding(app)
+        if app.board.index >= 33: # there are 34 boards in a tournament in Bridge
+            app.game = None # end game
+            for button in app.buttons:
+                if button.label == 'menu':
+                    button.action(app) # return to menu screen
 
-            # plays sound effects
-            if app.soundEffects:
-                app.sounds['button'].start()
-            print('gotBid')
 
-        if app.board.status == 'p':
-            card = app.player.getCard() # get bid from partner
-            for cardInHand in app.board.hands[app.board.activePosition]:
-                if cardInHand == card:
-                    card = cardInHand # so the images attributes etc. are kept
-            app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+        ##################### bots #####################
+        if isinstance(app.game.players[app.board.activePosition], Bot) and app.timeElapsed >= app.delay:
+            app.timeElapsed = 0
+            if app.board.status == 'p':
+                botPlay(app) 
+            else:
+                botBid(app)
+            return # so bots and sockets are separate
 
-            # card sounds effect
-            if app.soundEffects:
-                app.sounds['card'].start()
+        ##################### sockets #####################
+        # if it is the client's turn and you're the server
+        if app.timeElapsed <= app.delay: return # to create a delay between card play
+        elif app.board.activePosition == 's' and app.connection == 'server':
+            if app.board.status == 'b':
+                print('server gettingBid in mode')
+                bid = app.partner.getBid() # get bid from partner
+                app.board.playBid(bid)
+                if app.board.isBiddingEnd():
+                    endBidding(app)
+
+                # plays sound effects
+                if app.soundEffects:
+                    app.sounds['button'].start()
+
+            if app.board.status == 'p':
+                card = app.partner.getCard() # get bid from partner
+                for cardInHand in app.board.hands[app.board.activePosition]:
+                    if cardInHand == card:
+                        card = cardInHand # so the images attributes etc. are kept
+                app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+
+                # card sounds effect
+                if app.soundEffects:
+                    app.sounds['card'].start()
+        
+        # if it is the server's turn and you're the client
+        if app.board.activePosition == 'n' and app.connection == 'client':
+            
+            if app.board.status == 'b':
+                print('client gettingBid in mode')
+                bid = app.player.getBid() # get bid from partner
+                app.board.playBid(bid)
+                if app.board.isBiddingEnd():
+                    endBidding(app)
+
+                # plays sound effects
+                if app.soundEffects:
+                    app.sounds['button'].start()
+                print('gotBid')
+
+            if app.board.status == 'p':
+                card = app.player.getCard() # get bid from partner
+                for cardInHand in app.board.hands[app.board.activePosition]:
+                    if cardInHand == card:
+                        card = cardInHand # so the images attributes etc. are kept
+                app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
+
+                # card sounds effect
+                if app.soundEffects:
+                    app.sounds['card'].start()
+            return
+    except:
+        app.error = True
         return
 
 
