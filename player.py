@@ -34,6 +34,7 @@ class Player():
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.settimeout(10) # timeout after 5 seconds
+        # settimeout from https://stackoverflow.com/questions/3432102/python-socket-connection-timeout
         self.socket.connect((app.HOST, app.PORT))
         print('socketCreated')
 

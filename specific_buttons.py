@@ -13,19 +13,19 @@ from mode_menu import *
 # returns the top level buttons already located
 def getTopLevelButtons(app):
     margin = 10
-    width, height = 100, 40
+    width, height = 110, 50
     return [
         Button((width, height), # dimensions
             action=initiateMenu,
-            fill='#a7d1ca', outline=None, textFill='black',
+            fill='#a7d1ca', outline=None, textFill='black', font='Ubuntu',
             label='menu', location=(margin + width//2, margin + height//2),
-            fontSize = 16
+            fontSize = 20, style='bold'
             ),
         Button((width, height), # dimensions
             action=toggleSetting,
-            fill='#a7d1ca', outline=None, textFill='black',
+            fill='#a7d1ca', outline=None, textFill='black', font='Ubuntu',
             label='settings', location=(app.width-margin - width//2, margin + height//2),
-            fontSize = 16
+            fontSize = 20, style='bold'
             )
     ]
 
@@ -55,10 +55,12 @@ def getSettingButtons():
     for tag in settingButtonsDict:
         settingButtons.append(
             Button(
-            (100, 40), # dimensions
+            (110, 40), # dimensions
             label=tag,
             action=settingButtonsDict[tag],
-            fill='#bcd4d0'
+            fill='#bcd4d0',
+            textFill='black', font='Ubuntu',
+            style='bold'
             )
         )
     return settingButtons
@@ -67,6 +69,7 @@ def getSettingButtons():
 def locateSettingButtons(location, buttons):
     x, y = location
     margin = 10
+    y += margin
     for i in range(len(buttons)):
         button = buttons[i]
         button.location = (x, y + (button.height + margin)*(i+1))

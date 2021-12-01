@@ -296,7 +296,7 @@ class Board():
     def drawStatistics(self, app, canvas):
         width = app.width//4
         height = app.height//5
-        canvas.create_rectangle(0, app.height - height, 
+        create_roundedRectangles(canvas, 0, app.height - height, 
                                 width, app.height, fill='black')
         leftEdge = self.drawBoardBox(app, canvas, height) # box that indicated board no., dealer, and vulnerabilities
         leftEdge = self.drawTricks(app, canvas, height, leftEdge)
@@ -316,12 +316,12 @@ class Board():
         margin = 10
         height = (boxHeight - 3*margin)//2
         width = 80
-        canvas.create_rectangle(leftEdge + margin, app.height - margin - height, 
+        create_roundedRectangles(canvas, leftEdge + margin, app.height - margin - height, 
                                     leftEdge + margin + width, app.height - margin,
                                     fill='light grey')
         canvas.create_text(leftEdge + margin + width//2, app.height - margin - height//2,
                                 text=f'ns: {self.nsTricks}', font=('Calbri', 20))
-        canvas.create_rectangle(leftEdge + margin, app.height - 2*(margin + height), 
+        create_roundedRectangles(canvas, leftEdge + margin, app.height - 2*(margin + height), 
                                     leftEdge + margin + width, app.height - (2*margin + height),
                                     fill='light grey')
         canvas.create_text(leftEdge + margin + width//2, app.height - 2*(margin + height) + height//2,

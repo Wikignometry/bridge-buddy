@@ -16,7 +16,7 @@ class Bid(Button):
 
         self.color = self.getColor() # color names
 
-        outline='black'
+        outline='white'
 
         super().__init__(dimension=(30, 27), location=(100, 100), 
                         fill=self.color, outline=outline,
@@ -47,7 +47,7 @@ class Bid(Button):
 
     # returns color based on trump suit 
     def getColor(self):
-        bidColorDict = {'C': '#06D6A0', 'D': '#FFC847', 'H': '#F36888', 'S':'#32BDEC', 'NT':'#9197A1'}
+        bidColorDict = {'C': '#3BB273', 'D': '#C4A31C', 'H': '#E15554', 'S':'#4D9DE0', 'NT':'#7768AE'}
         return bidColorDict[self.trump]
     
     # returns the drawn version of suit symbols

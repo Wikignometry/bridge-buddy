@@ -22,7 +22,7 @@ class Card(Button):
         # card dimensions from https://www.playingcardspersonalised.co.uk/bridge-size-cards
         super().__init__(dimension=(57,89), 
                         fill='white',
-                        outline='black')
+                        outline='grey')
 
     # helps with code testing
     def __eq__(self, other):
