@@ -2,12 +2,15 @@
 #       Imported Modules
 import socket
 ###################################################################
-#  
-
+# In order of usefulness, I used the following sources for line 13
+# https://linux.die.net/man/3/setsockopt
+# https://stackoverflow.com/questions/5875177/how-to-close-a-socket-left-open-by-a-killed-program
+#
 def server(app):
     app.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     HOST = socket.gethostbyname(socket.gethostname()) # public ip address
-    PORT = 15118
+    PORT = 15112
+    app.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     app.server.bind((HOST, PORT))
     app.server.listen()
 

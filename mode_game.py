@@ -38,14 +38,17 @@ def initiateGameMode(app, players):
     for position in app.game.botPosition:
         player = app.game.players[position]
         player.interpretInitialHand(app.board.hands[position])
-
+    print(f'app.connection: {app.connection} ')
     if app.connection == 'server': # server is north
         server(app)
         app.partner = app.game.players['s'] # south is hardcoded as the socket
         app.partner.acceptSocket(app) 
+        app.partner.sendSeed()
     elif app.connection == 'client':
         client(app)
         app.player.createSocket(app) 
+        app.player.getSeed()
+        print('client!')
 
 def gameMode_mousePressed(app, event):
     ##################### buttons #####################
@@ -64,6 +67,18 @@ def gameMode_mousePressed(app, event):
 
                 if bid.isPressed(event.x, event.y):
 
+                    # so the active position is right
+                    # if it is the client's turn and you're the client
+                    if app.board.activePosition == 's' and app.connection == 'client':
+                        print('client sendingBidinMode')
+                        app.player.sendBid(bid) # send the bid to the server
+                    # if it is the server's turn and you're the server
+                    elif app.board.activePosition == 'n' and app.connection == 'server':
+                        print('server sendingBidinMode')
+                        app.partner.sendBid(bid) # send the bid to your partner
+                    
+
+
                     app.board.playBid(bid)
                     
                     # plays sound effects
@@ -74,14 +89,7 @@ def gameMode_mousePressed(app, event):
                     if app.board.isBiddingEnd():
                         endBidding(app)
 
-                    # if it is the client's turn and you're the client
-                    if app.board.activePosition == 's' and app.connection == 'client':
-                        app.player.sendBid(bid) # send the bid to the server
-                    # if it is the server's turn and you're the server
-                    elif app.board.activePosition == 'n' and app.connection == 'server':
-                        app.partner.sendBid(bid) # send the bid to your partner
                     
-
 
                     app.timeElapsed = 0 # so timer starts after last play
 
@@ -91,6 +99,14 @@ def gameMode_mousePressed(app, event):
         for card in (app.board.hands[app.board.activePosition])[::-1]:
             if card.isPressed(event.x, event.y) and app.board.isLegalPlay(card):
                 
+                # if it is the client's turn and you're the client
+                if app.board.activePosition == 's' and app.connection == 'client':
+                    app.player.sendCard(card) # send the card to the server
+                # if it is the server's turn and you're the server
+                elif app.board.activePosition == 'n' and app.connection == 'server':
+                    app.partner.sendCard(card) # send the card to your partner
+
+
                 # plays sound effect if app.soundEffects is True
                 if app.soundEffects: 
                     app.sounds['card'].start()
@@ -104,10 +120,9 @@ def gameMode_mousePressed(app, event):
                 
                 app.timeElapsed = 0 # so timer starts after last play
 
+                
                 break # to prevent multiple overlapping cards from being pressed
         
-        
-    
     ##################### ending #####################
     if app.board.endBoard:
         app.game.newBoard(app)
@@ -148,7 +163,7 @@ def botPlay(app):
     app.board.playCard(chosenCard, app.playedCardPositions[app.board.activePosition])
     
     # card sounds effect
-    if app.soundEffect:
+    if app.soundEffects:
         app.sounds['card'].start()
 
 # repositions items when size of screen changes
@@ -174,14 +189,14 @@ def gameMode_timerFired(app):
             botPlay(app) 
         else:
             botBid(app)
+        return # so bots and sockets are separate
 
     ##################### sockets #####################
     # if it is the client's turn and you're the server
-    if app.board.activePosition == 's' and app.connection == 'server':
-<<<<<<< Updated upstream
-        app.player.getBid()
-=======
+    if app.timeElapsed <= app.delay: return # to create a delay between card play
+    elif app.board.activePosition == 's' and app.connection == 'server':
         if app.board.status == 'b':
+            print('server gettingBid in mode')
             bid = app.partner.getBid() # get bid from partner
             app.board.playBid(bid)
             if app.board.isBiddingEnd():
@@ -193,15 +208,20 @@ def gameMode_timerFired(app):
 
         if app.board.status == 'p':
             card = app.partner.getCard() # get bid from partner
+            for cardInHand in app.board.hands[app.board.activePosition]:
+                if cardInHand == card:
+                    card = cardInHand # so the images attributes etc. are kept
             app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
 
             # card sounds effect
-            if app.soundEffect:
+            if app.soundEffects:
                 app.sounds['card'].start()
     
     # if it is the server's turn and you're the client
     if app.board.activePosition == 'n' and app.connection == 'client':
+        
         if app.board.status == 'b':
+            print('client gettingBid in mode')
             bid = app.player.getBid() # get bid from partner
             app.board.playBid(bid)
             if app.board.isBiddingEnd():
@@ -210,19 +230,22 @@ def gameMode_timerFired(app):
             # plays sound effects
             if app.soundEffects:
                 app.sounds['button'].start()
+            print('gotBid')
 
         if app.board.status == 'p':
             card = app.player.getCard() # get bid from partner
+            for cardInHand in app.board.hands[app.board.activePosition]:
+                if cardInHand == card:
+                    card = cardInHand # so the images attributes etc. are kept
             app.board.playCard(card, app.playedCardPositions[app.board.activePosition])
 
             # card sounds effect
-            if app.soundEffect:
+            if app.soundEffects:
                 app.sounds['card'].start()
-    
+        return
 
 
 
->>>>>>> Stashed changes
 
 
 def gameMode_redrawAll(app, canvas):

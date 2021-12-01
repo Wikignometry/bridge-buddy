@@ -24,16 +24,16 @@ def getMenuPlayersDict(app):
 
     partner = {
         'n': app.player,
-        'e': Player('PlayerEast'),
-        's': Player('PlayerSouth'),
-        'w': Player('PlayerWest'),
+        'e': Bot('e', 4, 9),
+        's': Player('client'),
+        'w': Bot('w', 4, 9),
     }
 
     joinPartner = {
-        'n': Player('PlayerNorth'),
-        'e': Player('PlayerEast'),
+        'n': Player('server'),
+        'e': Bot('e', 4, 9),
         's': app.player,
-        'w': Player('PlayerWest'),
+        'w': Bot('w', 4, 9),
     }
 
 
@@ -64,22 +64,6 @@ def initiateMenu(app, *args): # args so polymorphism works
                 fill='lime green', fontSize = 30, textFill='black', r=40)
     ]
     app.menuPlayersDict = getMenuPlayersDict(app) # dict where key=button name and value=playersDict
-    app.overlay = overlayImage('media/bridge_board.png')
-    app.overlay = app.scaleImage(app.overlay, 1/4)
-    # rotation from https://pythontic.com/image-processing/pillow/rotate
-    app.overlay = app.overlay.rotate(120, expand = 1)
-
-
-# putalpha from https://stackoverflow.com/questions/24731035/python-pil-0-5-opacity-transparency-alpha
-
-def overlayImage(path):
-    overlay = Image.open(path)
-    # based on https://github.com/python-pillow/Pillow/issues/4687
-    # makes the image more transparent without displaying already transparent pixels
-    overlayCopy = overlay.copy()
-    overlayCopy.putalpha(180)
-    overlay.paste(overlayCopy, overlay)
-    return overlay
     
 
 def menuMode_mousePressed(app, event):
@@ -115,8 +99,26 @@ def menuMode_redrawAll(app, canvas):
     for button in app.buttons:
         button.draw(canvas)
 
-    canvas.create_image(2*app.width//3, app.height//2-app.height//10, image=ImageTk.PhotoImage(app.overlay))
+    # canvas.create_image(2*app.width//3, app.height//2-app.height//10, image=ImageTk.PhotoImage(app.overlay))
 
 
 
+
+
+#     app.overlay = overlayImage('media/bridge_board.png')
+#     app.overlay = app.scaleImage(app.overlay, 1/4)
+#     # rotation from https://pythontic.com/image-processing/pillow/rotate
+#     app.overlay = app.overlay.rotate(120, expand = 1)
+
+
+# # putalpha from https://stackoverflow.com/questions/24731035/python-pil-0-5-opacity-transparency-alpha
+
+# def overlayImage(path):
+#     overlay = Image.open(path)
+#     # based on https://github.com/python-pillow/Pillow/issues/4687
+#     # makes the image more transparent without displaying already transparent pixels
+#     overlayCopy = overlay.copy()
+#     overlayCopy.putalpha(180)
+#     overlay.paste(overlayCopy, overlay)
+#     return overlay
 

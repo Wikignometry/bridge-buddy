@@ -6,7 +6,7 @@ import socket
 
 def client(app):
     app.HOST = socket.gethostbyname(socket.gethostname()) # public ip address
-    app.PORT = 15118
+    app.PORT = 15112
 
 
 
