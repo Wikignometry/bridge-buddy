@@ -54,22 +54,24 @@ def splashMode_timerFired(app):
         app.hoveredCard.move(0.3)          
 
 def splashMode_redrawAll(app, canvas):
+
+    # draws a rectangle
+    canvas.create_rectangle(0, 0, app.width, app.height, fill='#1F4447')
+
     # draws cards
     for card in app.displayCard:
         card.draw(canvas)
 
-    # draws grey rectangle
-    canvas.create_rectangle
     width, height = 2*app.width//3, app.height//5
     x0, y0 = (app.width - width)//2, (app.height - height)//2 # top left corner
     create_roundedRectangles(canvas, x0, y0, x0+width, y0+height, 
-                            fill='light grey', r=40)    
+                            fill='#25A18E', r=40, outline=None)    
     
     canvas.create_text(app.width//2, app.height//2,
                         text='Bridge Buddy',
-                        anchor='center', font=('Ubuntu', 80, 'bold'), fill='black')
-    canvas.create_text(app.width//2, app.height - 20, anchor = 's',
-                        text='Press any key to start', font=('Ubuntu', 20, 'bold'))
+                        anchor='center', font=('Ubuntu', 80, 'bold'), fill='#1F4447')
+    canvas.create_text(app.width//2, app.height - 20, anchor = 's', fill='white',
+                        text='Press any key to start', font=('Ubuntu', 30, 'bold'))
 
 
 
