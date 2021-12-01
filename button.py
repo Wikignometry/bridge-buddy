@@ -13,7 +13,9 @@ class Button():
 
     def __init__(self, dimension, location=None, action=None, 
                 fill='blue', outline=None, label=None, textFill='black', 
-                r=10, fontSize=12):
+                r=10, fontSize=12, textAnchor='center', font='Calbri', style='roman',
+                overlay=None, overlayLocation=(0,0), overlayAlpha=254, overlayScale=1
+                ):
         
         # tuples(x, y) of center of button or None 
         self.location = location
@@ -30,10 +32,57 @@ class Button():
         self.label = label
         self.textFill = textFill
 
+        self.font = font
+        self.style = style # bold underline italics roman
+        self.fontAnchor = textAnchor # supports center and se
+
         # int
         self.r = r 
         self.fontSize = fontSize 
 
+        self.overlay = overlay
+        self.overlayLocation = overlayLocation
+        self.overlayAlpha = overlayAlpha # transparency of image
+        self.overlayScale = overlayScale # scale of the image
+        if self.overlay != None:
+            self.getOverlay(overlay)
+
+    # process the overlay image
+    def getOverlay(self, path):
+        self.overlay = Image.open(path)
+        self.overlay = self.scaleImage(self.overlay, self.overlayScale)
+        if path[-3:] == 'png':
+            # based on https://github.com/python-pillow/Pillow/issues/4687
+            # makes the image translucent without displaying already transparent pixels
+            overlayCopy = self.overlay.copy()
+            overlayCopy.putalpha(self.overlayAlpha) # increases transparency
+            self.overlay.paste(overlayCopy, self.overlay)
+        else: # normal transparency for non-transparent images
+            self.overlay.putalpha(self.overlayAlpha)
+        if self.location != None:
+            xButton, yButton = self.location
+            width, height = self.overlay.size
+            x, y = xButton + self.overlayLocation[0], yButton + self.overlayLocation[1]
+            lowX, lowY, highX, highY = 0, 0, width, height # default values
+            if x-width/2 <= xButton-self.width/2:
+                lowX = (xButton-self.width//2) - (x-width//2) + self.overlayLocation[0]
+            if x+width/2 >= xButton+self.width/2:
+                highX = width-((x+width//2) - (xButton+self.width//2) - self.overlayLocation[0])
+            if y-height/2 <= yButton-self.height/2:
+                lowY = (yButton-self.height//2) - (y-height//2) + self.overlayLocation[1]
+            if y+height/2 >= yButton+self.height/2:
+                highY = height - ((y+height//2) - (yButton+self.height//2) - self.overlayLocation[1])
+            print(yButton, self.height, y, height)
+            print(lowX, lowY, width-highX, height-highY)
+            self.overlay = self.overlay.crop((lowX, lowY, highX, highY))
+
+
+
+    # copied directly from cmu_112_graphics
+    def scaleImage(self, image, scale, antialias=False):
+        # antialiasing is higher-quality but slower
+        resample = Image.ANTIALIAS if antialias else Image.NEAREST
+        return image.resize((round(image.width*scale), round(image.height*scale)), resample=resample)
 
     def __repr__(self):
         if self.label != None:
@@ -65,14 +114,30 @@ class Button():
                                 x - self.width//2, y - self.height//2,
                                 x + self.width//2, y + self.height//2,
                                 r=self.r, fill=self.fill, outline=self.outline)
+        
+        
+        if self.overlay != None:
+            canvas.create_image(x, y, image=ImageTk.PhotoImage(self.overlay))
+
+
         if self.label != None:
-            canvas.create_text(x, y, 
+            if self.fontAnchor == 'center':
+                canvas.create_text(x, y, 
                         text=f'{self.label}', 
-                        font = ('Calbri', self.fontSize),
+                        font = (self.font, self.fontSize, self.style),
                         anchor='center', 
                         justify='center', 
                         fill=self.textFill)
+            else:
+                margin=10
+                canvas.create_text(x+self.width//2-margin, y+self.height//2-margin, 
+                        text=f'{self.label}', 
+                        font = (self.font, self.fontSize, self.style),
+                        anchor='se', 
+                        justify='right', 
+                        fill=self.textFill)
 
+    
 
 
 

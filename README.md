@@ -16,3 +16,8 @@ ambient song is The Golden Present from Jesse Gallagher
 nature sound is Jungle Atmosphere Afternoon 
 both from Youtube Audio Library
 
+
+color palatte from https://coolors.co/004e64-00a5cf-9fffcb-25a18e-7ae582
+
+
+menu overlay images from https://commons.wikimedia.org/wiki/File:Sorting_the_Cards_(14523861902).jpg and https://commons.wikimedia.org/wiki/File:A_face-up_deck_of_cards.jpg

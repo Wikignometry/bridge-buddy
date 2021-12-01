@@ -34,7 +34,7 @@ def appStarted(app):
     # baseline
     app.game = None
     app.soundEffects = True
-    app.music = app.sounds['nature'] # 'music', 'nature' or 'off'
+    app.music = app.sounds['music'] # 'music', 'nature' or 'off'
     app.connection = False # 'server' 'client' or False
 
 

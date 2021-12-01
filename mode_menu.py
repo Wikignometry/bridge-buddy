@@ -38,30 +38,41 @@ def getMenuPlayersDict(app):
 
 
     return {
-        'Play Solo': solo,
+        'Play solo': solo,
         'Teaching\nMode': teaching,
         'Join\nPartner': joinPartner,
-        'Play with\nPartner': partner
+        'Play with a partner': partner
     }
 
+# color scheme from https://coolors.co/185d9e-00a5cf-4dcae3-25a18e-7ae582-25b7fa
 def initiateMenu(app, *args): # args so polymorphism works
     app.mode = 'menuMode'
+    margin = 10
+    xCenter, yCenter = app.width//2, app.height//2
+    buttonWidth, buttonHeight = app.width//5, 2*app.height//7 # refers to width of small button
+    yTopRow = yCenter - margin//2 - buttonHeight//2
+    yBottomRow = yCenter + margin//2 + buttonHeight//2
+    xDifferenceLarge = buttonWidth//2 # distance from centerline for large buttons
+    xDifferenceSmall = buttonWidth + margin # distance from centerline for small buttons
     app.menuButtons = [
-        Button((app.width//3, 2*app.height//7), location=(app.width//3, app.height//2),
-                 label = 'Play Solo', action=initiateGameMode, 
-                 fill='deep sky blue', fontSize = 30, textFill='black', r=40),
+        Button((2*buttonWidth, buttonHeight), location=(xCenter-xDifferenceLarge, yTopRow),
+                 label = 'Play solo', action=initiateGameMode, 
+                 fill='#23C491', fontSize = 30, textFill='black', textAnchor='se', font='Ubuntu', r=40, style='bold', 
+                 overlay='media/image1.jpg', overlayAlpha=100, overlayLocation=(-20, 0), overlayScale=0.7),
         
-        Button((app.width//5, 2*app.height//7), location=(2*app.width//3, app.height//2),
-                label = 'Teaching\nMode', action=initiateGameMode, 
-                fill='lime green', fontSize = 30, textFill='black', r=40),
+        Button((buttonWidth, buttonHeight), location=(xCenter+xDifferenceSmall, yTopRow),
+                label = 'Teaching\nMode', action=initiateGameMode, font='Ubuntu', style='bold',
+                fill='#25A18E', fontSize = 30, textFill='white', r=40),
         
-        Button((app.width//5, 2*app.height//7), location=(app.width//3, app.height//4),
-                label = 'Play with\nPartner', action=initiateGameMode, 
-                fill='lime green', fontSize = 30, textFill='black', r=40),
+        Button((2*buttonWidth, buttonHeight), location=(xCenter+xDifferenceLarge, yBottomRow),
+                label = 'Play with a partner', action=initiateGameMode, 
+                fill='#4DCAE3', fontSize = 30, textFill='black', textAnchor='se', r=40,
+                font='Ubuntu', style='bold', 
+                overlay='media/image5.jpg', overlayAlpha=90, overlayScale=1),
         
-        Button((app.width//5, 2*app.height//7), location=(2*app.width//3, app.height//4),
-                label = 'Join\nPartner', action=initiateGameMode, 
-                fill='lime green', fontSize = 30, textFill='black', r=40)
+        Button((buttonWidth, buttonHeight), location=(xCenter-xDifferenceSmall, yBottomRow),
+                label = 'Join\nPartner', action=initiateGameMode, font='Ubuntu', style='bold',
+                fill='#00A5CF', fontSize = 30, textFill='white', r=40)
     ]
     app.menuPlayersDict = getMenuPlayersDict(app) # dict where key=button name and value=playersDict
     
@@ -94,6 +105,7 @@ def menuMode_mousePressed(app, event):
 
 
 def menuMode_redrawAll(app, canvas):
+    canvas.create_rectangle(0, 0, app.width, app.height, fill='#1F4447')
     for button in app.menuButtons:
         button.draw(canvas)
     for button in app.buttons:
