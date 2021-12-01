@@ -2,7 +2,7 @@
 
 ### Project name: Bridge Buddy
 
-### How to run:
+## How to run:
 
 The code is run from the 'main.py' 
 
