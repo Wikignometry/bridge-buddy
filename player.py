@@ -32,7 +32,7 @@ class Player():
     def createSocket(self, app):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.settimeout(10) # timeout after 5 seconds
+        self.socket.settimeout(15) # timeout after 15 seconds
         # settimeout from https://stackoverflow.com/questions/3432102/python-socket-connection-timeout
         self.socket.connect((app.HOST, app.PORT))
 
@@ -77,8 +77,8 @@ class Player():
 
     # kinda arbitrary, but for clarity
     def sendSeed(self):
-        seed = str(random.random())
-        self.sendMessage(seed)
+        seed = random.random()
+        self.sendMessage(str(seed))
         random.seed(seed)
 
 

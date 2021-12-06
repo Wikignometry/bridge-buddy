@@ -12,17 +12,28 @@ from server import *
 from client import *
 ###################################################################
 
+
 # def appStarted(app):
 def initiateGameMode(app, players):
     try:
         app.mode = 'gameMode'
+
+        if app.connection == 'server': # server is north
+            server(app)
+            app.partner = players['s'] # south is hardcoded as the socket
+            app.partner.acceptSocket(app) 
+            app.partner.sendSeed()
+        elif app.connection == 'client':
+            client(app)
+            app.player.createSocket(app) 
+            app.player.getSeed()
 
         app.timeElapsed = 0 
         app.delay = 500
 
         app.error = False
 
-        if app.game == None or players != app.game.players:
+        if app.game == None or players != app.game.players or app.connection != None:
             app.game = Game(app, players)
         app.board = app.game.board
         app.handLocations = {'n': (app.width//2, 50),
@@ -46,22 +57,10 @@ def initiateGameMode(app, players):
         for position in app.game.botPosition:
             player = app.game.players[position]
             player.interpretInitialHand(app.board.hands[position])
-        
-        
-    
-        if app.connection == 'server': # server is north
-            server(app)
-            app.partner = app.game.players['s'] # south is hardcoded as the socket
-            app.partner.acceptSocket(app) 
-            app.partner.sendSeed()
-        elif app.connection == 'client':
-            client(app)
-            app.player.createSocket(app) 
-            app.player.getSeed()
 
-    except:
+    except Exception as e:
         app.error = True
-        return
+        print(e)
 
 def gameMode_mousePressed(app, event):   
     try:
