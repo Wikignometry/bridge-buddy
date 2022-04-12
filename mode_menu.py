@@ -48,6 +48,11 @@ def getMenuPlayersDict(app):
 def initiateMenu(app, *args): # args so polymorphism works
     app.mode = 'menuMode'
     margin = 10
+
+    if app.connection != None and app.player.socket != None:
+            app.player.sendMessage('') # so the partner knows you have left the game
+            app.player.socket = None
+    
     app.connection = None # so it clears after a connected game
     app.teaching = False # ditto
 
@@ -119,23 +124,4 @@ def menuMode_redrawAll(app, canvas):
     # canvas.create_image(2*app.width//3, app.height//2-app.height//10, image=ImageTk.PhotoImage(app.overlay))
 
 
-
-
-
-#     app.overlay = overlayImage('media/bridge_board.png')
-#     app.overlay = app.scaleImage(app.overlay, 1/4)
-#     # rotation from https://pythontic.com/image-processing/pillow/rotate
-#     app.overlay = app.overlay.rotate(120, expand = 1)
-
-
-# # putalpha from https://stackoverflow.com/questions/24731035/python-pil-0-5-opacity-transparency-alpha
-
-# def overlayImage(path):
-#     overlay = Image.open(path)
-#     # based on https://github.com/python-pillow/Pillow/issues/4687
-#     # makes the image more transparent without displaying already transparent pixels
-#     overlayCopy = overlay.copy()
-#     overlayCopy.putalpha(180)
-#     overlay.paste(overlayCopy, overlay)
-#     return overlay
 

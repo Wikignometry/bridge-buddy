@@ -144,8 +144,9 @@ def gameMode_mousePressed(app, event):
         # adjusts the card position for played card
         app.board.locateHands(app.handLocations)
     except Exception as e:
-        app.error = True
-        print(e) #intentionally left in here so the more computer savvy players can see what went wrong
+        errorProtocol(app, e)
+        
+
 
 
 def endBidding(app):
@@ -190,7 +191,7 @@ def gameMode_keyPressed(app, event):
     if app.error:
         app.error = False
         app.game = None
-        for button in app.buttons:
+        for button in app.buttons: # because initiate menu is not inherited into this file
             if button.label == 'menu':
                 button.action(app) # return to menu screen
 
@@ -266,9 +267,9 @@ def gameMode_timerFired(app):
                 if app.soundEffects:
                     app.sounds['card'].start()
             return
+    
     except Exception as e:
-        app.error = True
-        print(e)
+        errorProtocol(app, e)
 
 
 
@@ -293,6 +294,9 @@ def drawError(app, canvas):
     canvas.create_text(app.width//2, app.height//2, anchor = 'center', justify='center',
                         text='Error...\nPress any key to return to menu', font=('Ubuntu', 36, 'bold'))
 
+def errorProtocol(app, e):
+    app.error = True
+    print(e) #intentionally left in here so the more computer savvy players can see what went wrong
 
 
 

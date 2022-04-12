@@ -45,7 +45,14 @@ class Player():
 
     # get message from socket
     def getMessage(self):
-        return self.socket.recv(1024).decode('utf-8')
+        message = self.socket.recv(1024).decode('utf-8')
+        if message == '':
+            raise Exception('Partner has left')
+        print(message)
+        return message    
+
+    def new_method(self):
+        raise
     
     # send card to socket
     def sendCard(self, card):

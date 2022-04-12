@@ -30,6 +30,8 @@ music.mp3 is The Golden Present from Jesse Gallagher
 nature.mp3 is Jungle Atmosphere Afternoon 
 both from Youtube Audio Library
 
+sockets base from https://www.youtube.com/watch?v=YwWfKitB8aA
+
 music in the demo video from Buccaneer’s March by Aakash Gandhi also from the Youtube Audio Library
 
 color palatte from https://coolors.co
