@@ -1,6 +1,4 @@
-# term-project
-
-### Project name: Bridge Buddy
+# Bridge Buddy
 
 ## How to run:
 
