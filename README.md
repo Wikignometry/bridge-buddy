@@ -1,8 +1,15 @@
 # Bridge Buddy
 
-## How to run:
+## Project Description
+BridgeBuddy is an application that allows users to play the game Contract Bridge with a computer opponent (a amalgamation of montecarlo and minimax algorithms) and sockets. 
 
-The code is run from the 'main.py' 
+This project was written in 2021 as the term project for 15-112, Carnegie Mellon University's introductory programming class. 
+
+A demo of the project can be viewed from the link in the demo-video.txt file. A project proposal can be viewed in the design proposal folder
+
+## How to run
+
+The code is run from the 'main.py'. Downloading the files  
 
 The 'media' folder should contain the following files:
 * button_click.wav
@@ -13,8 +20,10 @@ The 'media' folder should contain the following files:
 * nature.mp3
 * play_card.wav
 
-### Necessary Modules:
+### Necessary Modules
 * pygame
+* PIL (via cmu_112_graphics)
+* tkinter (via cmu_112_graphics)
 
 ## Media citation
 
