@@ -9,7 +9,7 @@ A demo of the project can be viewed from the link in the demo-video.txt file. A 
 
 ## How to run
 
-The code is run from the 'main.py'. Downloading the files  
+The code is run from the 'main.py'. 
 
 The 'media' folder should contain the following files:
 * button_click.wav
